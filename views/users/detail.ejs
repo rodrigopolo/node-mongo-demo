@@ -1,0 +1,190 @@
+<% layout('../boilerplate') -%>
+<style>
+
+</style>
+<div class="container" id="admin">
+	<div class="row">
+
+		<div class="col-xs-12 col-sm-12 col-md-12">
+		    <% for(k in error_msg) { %>
+    			<div class="alert alert-danger alert-dismissable">
+    				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    				<strong>Error!</strong> <%= error_msg[k] %>
+    			</div>
+		    <% } %>
+			<div class="panel panel-default">
+				<!-- Default panel contents -->
+				<div class="panel-heading">
+					Editing
+				</div>
+
+				<form role="form" acton="<%=form_action%>" method="post">
+				<div class="panel-body">
+						<div class="form-group<%=(validation.name)?' has-error':''%>">
+							<label class="control-label" for="name">Full name</label>
+							<%-input({
+								type: 'text',
+								id: 'name',
+								name: 'name',
+								placeholder: 'Name',
+								value: item.name,
+								class: 'form-control'
+							})%>
+						</div>
+						<div class="form-group<%=(validation.email)?' has-error':''%>">
+							<label class="control-label" for="email">Email address</label>
+							<%-input({
+								type: 'email',
+								id: 'email',
+								name: 'email',
+								placeholder: 'Email',
+								value: item.email,
+								class: 'form-control'
+							})%>
+						</div>
+						<div class="form-group<%=(validation.password)?' has-error':''%>">
+							<label class="control-label" for="timezone">Password</label>
+							<input type="password" class="form-control" id="password" name="password" placeholder="Password">
+						</div>
+						<div class="form-group<%=(validation.timezone)?' has-error':''%>">
+							<label class="control-label" for="timezone">Time Zone</label>
+							<%-
+							select({
+								selected: item.timezone,
+								name: 'timezone',
+								id: 'timezone',
+								class: 'form-control',
+								options: [
+									{
+										value: '-12.0',
+										text: '(GMT -12:00) Eniwetok, Kwajalein'
+									}, {
+										value: '-11.0',
+										text: '(GMT -11:00) Midway Island, Samoa'
+									}, {
+										value: '-10.0',
+										text: '(GMT -10:00) Hawaii'
+									}, {
+										value: '-9.0',
+										text: '(GMT -9:00) Alaska'
+									}, {
+										value: '-8.0',
+										text: '(GMT -8:00) Pacific Time (US & Canada)'
+									}, {
+										value: '-7.0',
+										text: '(GMT -7:00) Mountain Time (US & Canada)'
+									}, {
+										value: '-6.0',
+										text: '(GMT -6:00) Central Time (US & Canada), Mexico City'
+									}, {
+										value: '-5.0',
+										text: '(GMT -5:00) Eastern Time (US & Canada), Bogota, Lima'
+									}, {
+										value: '-4.0',
+										text: '(GMT -4:00) Atlantic Time (Canada), Caracas, La Paz'
+									}, {
+										value: '-3.5',
+										text: '(GMT -3:30) Newfoundland'
+									}, {
+										value: '-3.0',
+										text: '(GMT -3:00) Brazil, Buenos Aires, Georgetown'
+									}, {
+										value: '-2.0',
+										text: '(GMT -2:00) Mid-Atlantic'
+									}, {
+										value: '-1.0',
+										text: '(GMT -1:00 hour) Azores, Cape Verde Islands'
+									}, {
+										value: '0.0',
+										text: '(GMT) Western Europe Time, London, Lisbon, Casablanca'
+									}, {
+										value: '1.0',
+										text: '(GMT +1:00 hour) Brussels, Copenhagen, Madrid, Paris'
+									}, {
+										value: '2.0',
+										text: '(GMT +2:00) Kaliningrad, South Africa'
+									}, {
+										value: '3.0',
+										text: '(GMT +3:00) Baghdad, Riyadh, Moscow, St. Petersburg'
+									}, {
+										value: '3.5',
+										text: '(GMT +3:30) Tehran'
+									}, {
+										value: '4.0',
+										text: '(GMT +4:00) Abu Dhabi, Muscat, Baku, Tbilisi'
+									}, {
+										value: '4.5',
+										text: '(GMT +4:30) Kabul'
+									}, {
+										value: '5.0',
+										text: '(GMT +5:00) Ekaterinburg, Islamabad, Karachi, Tashkent'
+									}, {
+										value: '5.5',
+										text: '(GMT +5:30) Bombay, Calcutta, Madras, New Delhi'
+									}, {
+										value: '5.75',
+										text: '(GMT +5:45) Kathmandu'
+									}, {
+										value: '6.0',
+										text: '(GMT +6:00) Almaty, Dhaka, Colombo'
+									}, {
+										value: '7.0',
+										text: '(GMT +7:00) Bangkok, Hanoi, Jakarta'
+									}, {
+										value: '8.0',
+										text: '(GMT +8:00) Beijing, Perth, Singapore, Hong Kong'
+									}, {
+										value: '9.0',
+										text: '(GMT +9:00) Tokyo, Seoul, Osaka, Sapporo, Yakutsk'
+									}, {
+										value: '9.5',
+										text: '(GMT +9:30) Adelaide, Darwin'
+									}, {
+										value: '10.0',
+										text: '(GMT +10:00) Eastern Australia, Guam, Vladivostok'
+									}, {
+										value: '11.0',
+										text: '(GMT +11:00) Magadan, Solomon Islands, New Caledonia'
+									}, {
+										value: '12.0',
+										text: '(GMT +12:00) Auckland, Wellington, Fiji, Kamchatka'
+									}
+								]
+							})%>
+						</div>
+						<div class="form-group<%=(validation.role)?' has-error':''%>">
+							<label class="control-label" for="role">Role</label>
+							<%-
+							select({
+								selected: item.role,
+								name: 'role',
+								id: 'role',
+								class: 'form-control',
+								options: roles
+							})%>
+						</div>
+						<!-- 
+						<div class="checkbox">
+							<label>
+								<input type="checkbox">Check me out
+							</label>
+						</div>
+						 -->
+				</div>
+
+
+				<div class="panel-footer">
+					<button type="submit" class="btn btn-default">Submit</button>
+				</div>
+
+				</form>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
+<!-- <p>Email: <%= user.email %></p>
+<p>Name: <%= user.name %></p> -->
+
