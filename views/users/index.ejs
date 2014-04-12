@@ -26,7 +26,15 @@ script('/js/users.js');
 				</div>
 
 				<div class="panel-body">
-					<input type="text" class="form-control" placeholder="Find" />
+					<form id="del_confirm" action="/users/" method="post">
+					<%-input({
+						type: 'text',
+						name: 'search',
+						placeholder: 'Search',
+						value: search,
+						class: 'form-control'
+					})%>
+					</form>
 				</div>
 
 				<!-- Table -->

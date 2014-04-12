@@ -4,6 +4,12 @@ var CONFIG = require('./config');
 // Include the cluster module
 var cluster = require('cluster');
 
+/*cluster.on('exit', function (worker) {
+	// Replace the dead worker
+	console.log('Worker ' + worker.id + ' died, respawn.');
+	cluster.fork();
+});*/
+
 // Code to run if we're in the master process
 if (cluster.isMaster) {
 
@@ -40,10 +46,6 @@ if (cluster.isMaster) {
 	require('./lib/app_locals')(app);
 
 	// Simple route middleware to ensure user is authenticated.
-	//   Use this route middleware on any resource that needs to be protected.  If
-	//   the request is authenticated (typically via a persistent login session),
-	//   the request will proceed.  Otherwise, the user will be redirected to the
-	//   login page.
 	function ensureAuthenticated(req, res, next){
 		if (req.isAuthenticated()){
 			return next();
@@ -51,10 +53,12 @@ if (cluster.isMaster) {
 		res.redirect('/signin')
 	}
 
-	// Express routes
+	/**
+	 * Express routes
+	 **/
 
 	// Public routes
-	require('./routes/public')(CONFIG, app);
+	require('./routes/public')(CONFIG, app, cluster);
 
 	// Passport routes
 	require('./routes/passport')(CONFIG, app, passport);
@@ -73,52 +77,12 @@ if (cluster.isMaster) {
 	    }
 	});
 
-	// 404 error pages
-	app.use(function(req, res, next){
-		res.status(404);
-		if (req.accepts('html')){
-			res.render('public/404', {
-				title: '404 - Not found',
-				site: CONFIG.site,
-				user: req.user,
-				path: req.url
-			});
-			return;
-		}
-		if (req.accepts('json')){
-			res.send({error: '404 - Not found'});
-			return;
-		}
-		res.type('txt').send('404 - Not found');
-	});
+	// Server port
+	app.set('port', process.env.PORT || CONFIG.express.port);
 
-	// 500 error pages (temporary commented)
-/*	app.use(function(err, req, res, next){
-		res.status(err.status || 500);
-
-		if (req.accepts('html')){
-			res.render('public/500', {
-				title: '500 - Server Error',
-				site: CONFIG.site,
-				user: req.user,
-				path: req.url
-			});
-			return;
-		}
-		if (req.accepts('json')){
-			res.send({error: '500 - Server Error'});
-			return;
-		}
-		res.type('txt').send('500 - Server Error');
-
-		// Check error on console.
-		console.log(err);
-	});*/
-
-
-	// Start node server
-	app.listen(3000, function(){
-		console.log('Express server listening on port 3000');
+	// Start server
+	var server = app.listen(app.get('port'), function() {
+	  console.log('Express server listening on port: "' + server.address().port+'" and running on worker: "'+cluster.worker.id+'".');
 	});
 
 }

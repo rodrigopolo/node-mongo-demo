@@ -1,4 +1,64 @@
-node-mongo-demo
-===============
+#Node-Mongo-Demo
 
-A more advanced demo app using many essential libraries for web development.
+A complete, working and MIT licensed Node.js-MongoDB [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) App that uses most common and useful Node.js modules and [Bootstrap](http://getbootstrap.com/) front-end framework, designed to understand how to create and develop a Node.js-MongoDB project with the aim to give a cornerstone for future projects to any developer..
+
+##Install
+
+```
+git clone https://github.com/rodrigopolo/node-mongo-demo.git
+cd node-mongo-demo
+npm install
+```
+
+##Run
+
+###Linux/Unix/OSX
+
+```
+PORT=8080 node app.js
+```
+
+or
+
+```
+export PORT=8080
+node app.js
+```
+
+###Windows:
+
+```
+set PORT=8080
+node app.js
+```
+
+or In Windows PowerShell
+
+```
+$env:PORT = 1234
+node app.js
+```
+
+## License
+
+(The MIT License)
+
+Copyright (c) by Rodrigo Polo http://RodrigoPolo.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

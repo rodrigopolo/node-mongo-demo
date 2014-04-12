@@ -1,7 +1,8 @@
-module.exports = function(CONFIG, app){
+module.exports = function(CONFIG, app, cluster){
 
 	// Home
 	app.get('/', function(req, res){
+		console.log(cluster.worker.id);
 		res.render('public/index', {
 			title: 'Home',
 			site: CONFIG.site,

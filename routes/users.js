@@ -256,23 +256,19 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 
 	});
 
-	// Find users
-	app.get('/users/find/:q/:page(\\d+)?/', ensureAuthenticated, function(req, res){
-		res.render('users/index', {
-			title: 'Users - Find',
-			site: CONFIG.site,
-			user: req.user,
-			path: req.url,
-			roles: roles_arr
-		});
-	});
-
 	// Show the index page with pagination
-	app.get('/users/:page(\\d+)?', ensureAuthenticated, function(req, res, next){
+	var user_list = function(req, res, next){
+		
+		var find = {};
+		if(req.body.search){
+			var look_for = new RegExp(req.body.search, 'i');
+			find['$or'] = [ {'name': look_for}, {'email': look_for}];
+		}
+
 		var page = (req.params.page || 1)-1;
 		var perPage = 10;
 		models.users
-			.find()
+			.find(find)
 			.select('_id name email role')
 			.sort({name: 'asc'})
 			.limit(perPage)
@@ -281,7 +277,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 				if(data.length<1){
 					next();
 				}else{
-					models.users.count().exec(function(err, count){
+					models.users.find(find).count().exec(function(err, count){
 						res.render('users/index', {
 							title: 'Users',
 							site: CONFIG.site,
@@ -289,6 +285,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 							path: req.url,
 							roles: roles_arr,
 							users: data,
+							search: req.body.search,
 							page: (page+1),
 							pages: Math.ceil(count / perPage),
 							messages: req.flash('success')
@@ -297,5 +294,9 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 				}
 		});
 
-	});
+	}
+
+	
+	app.get('/users/:page(\\d+)?', ensureAuthenticated, user_list);
+	app.post('/users/:page(\\d+)?', ensureAuthenticated, user_list);
 }

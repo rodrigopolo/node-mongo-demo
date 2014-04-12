@@ -3,7 +3,9 @@ config = {
 		name: 'Project'
 	},
 	express:{
-		forkallcpus: false
+		forkallcpus: false,
+		port: 3000, // Can be overwritten in console by typing: PORT=1234 node app.js
+		behind_proxy: false
 	},
 	mongo: {
 		host: 'localhost',
@@ -40,4 +42,3 @@ config = {
 }
 
 module.exports = config;
-
