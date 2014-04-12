@@ -23,13 +23,14 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 	// Show the user creation form
 	app.get('/users/create', ensureAuthenticated, function(req, res){
 		res.render('users/detail', {
-			title: 'Profile',
+			title: 'User- Create',
 			site: CONFIG.site,
 			user: req.user,
 			path: req.url,
 			form_action: '/users/create/',
 			roles: user_roles,
 			item: '',
+			self: false,
 			validation: '',
 			error_msg: ''
 		});
@@ -60,13 +61,14 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 		if(has_errors){
 			error_msg[0] = 'Please fill in all fields.';
 			res.render('users/detail', {
-				title: 'Profile',
+				title: 'User - Create',
 				site: CONFIG.site,
 				user: req.user,
 				path: req.url,
 				form_action: '/users/create/',
 				roles: user_roles,
 				item: req.body,
+				self: false,
 				validation: val_errors,
 				error_msg: error_msg
 			});
@@ -86,13 +88,14 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 						console.log(err);
 					}
 					res.render('users/detail', {
-						title: 'Profile',
+						title: 'User - Create',
 						site: CONFIG.site,
 						user: req.user,
 						path: req.url,
 						form_action: '/users/create/',
 						roles: user_roles,
 						item: req.body,
+						self: false,
 						validation: val_errors,
 						error_msg: error_msg
 					});
@@ -111,13 +114,14 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 		}, function(err, data){
 			if(data){
 				res.render('users/detail', {
-					title: 'Edit',
+					title: 'User - Edit',
 					site: CONFIG.site,
 					user: req.user,
 					path: req.url,
 					form_action: '/users/update/'+req.params.id+'/',
 					roles: user_roles,
 					item: data,
+					self: (data._id.toString() == req.user._id),
 					validation: '',
 					error_msg: ''
 				});
@@ -139,8 +143,8 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 			'name',
 			'email',
 			//'password', // don't validate empty password, if empty: do not change, if filled: change.
-			'timezone',
-			'role'
+			'timezone'
+			//'role' // don't validate role, users can't change their own role.
 		]
 		for(k in check){
 			if(!(req.body[check[k]])){
@@ -153,13 +157,14 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 		if(has_errors){
 			error_msg[0] = 'Please fill in all fields.';
 			res.render('users/detail', {
-				title: 'Profile',
+				title: 'User - Edit',
 				site: CONFIG.site,
 				user: req.user,
 				path: req.url,
 				form_action: '/users/update/'+req.params.id+'/',
 				roles: user_roles,
 				item: req.body,
+				self: req.body.role, // validate if is defined
 				validation: val_errors,
 				error_msg: error_msg
 			});
@@ -173,7 +178,10 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 					user.name = req.body.name;
 					user.email = req.body.email;
 					user.timezone = req.body.timezone;
-					user.role = req.body.role;
+
+					if(req.body.role){
+						user.role = req.body.role;
+					}
 
 					if(req.body.password){
 						user.password = req.body.password;
@@ -192,13 +200,14 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 								console.log(err);
 							}
 							res.render('users/detail', {
-								title: 'Profile',
+								title: 'User - Edit',
 								site: CONFIG.site,
 								user: req.user,
 								path: req.url,
 								form_action: '/users/update/'+req.params.id+'/',
 								roles: user_roles,
 								item: req.body,
+								self: req.body.role, // validate if is defined
 								validation: val_errors,
 								error_msg: error_msg
 							});
@@ -249,9 +258,8 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 
 	// Find users
 	app.get('/users/find/:q/:page(\\d+)?/', ensureAuthenticated, function(req, res){
-		console.log(req.params);
 		res.render('users/index', {
-			title: 'Profile',
+			title: 'Users - Find',
 			site: CONFIG.site,
 			user: req.user,
 			path: req.url,

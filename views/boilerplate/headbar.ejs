@@ -13,6 +13,7 @@
 			<ul class="nav navbar-nav navbar-right">
 				<%- navbar_up({
 					path: path,
+					user: user,
 					links: [{
 						title: 'Home',
 						url: '/'
@@ -21,7 +22,8 @@
 						url: '/about/'
 					},{
 						title: 'Users',
-						url: '/users/'
+						url: '/users/',
+						per: 2
 					}],
 					template: '<li{active}><a href="{url}">{title}</a></li>',
 					active: ' class="active"'
@@ -32,7 +34,7 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= user.name %> <b class="caret"></b></a>
 					<ul class="dropdown-menu">
-						<li><a href="/users/edit/<%=user._id%>/">Profile</a></li>
+						<li><a href="/users/edit/<%=user._id%>/">Account</a></li>
 						<li><a href="/signout">Sign out</a></li>
 					</ul>
 				</li>

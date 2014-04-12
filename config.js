@@ -31,7 +31,7 @@ config = {
 		role: 1
 	},
 	sessions: {
-		secret: 'a4f8071f-c873-4447-8ee2',
+		secret: 'Some secret', // Create your own large unguessable string 
 		collection: 'site_sessions'
 	},
 	cookies: {

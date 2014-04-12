@@ -24,7 +24,8 @@
 									name: 'name',
 									placeholder: 'Name',
 									value: item.name,
-									class: 'form-control'
+									class: 'form-control',
+									required: true
 								})%>
 							</div>
 							<div class="form-group<%=(validation.email)?' has-error':''%>">
@@ -35,7 +36,8 @@
 									name: 'email',
 									placeholder: 'Email',
 									value: item.email,
-									class: 'form-control'
+									class: 'form-control',
+									required: true
 								})%>
 							</div>
 							<div class="form-group<%=(validation.password)?' has-error':''%>">
@@ -147,16 +149,18 @@
 									]
 								})%>
 							</div>
-							<div class="form-group<%=(validation.role)?' has-error':''%>">
-								<label class="control-label" for="role">Role</label>
-								<%- select({
-									selected: item.role,
-									name: 'role',
-									id: 'role',
-									class: 'form-control',
-									options: roles
-								})%>
-							</div>
+							<% if(!self){ %>
+								<div class="form-group<%=(validation.role)?' has-error':''%>">
+									<label class="control-label" for="role">Role</label>
+									<%- select({
+										selected: item.role,
+										name: 'role',
+										id: 'role',
+										class: 'form-control',
+										options: roles
+									})%>
+								</div>
+							<% } %>
 					</div>
 
 					<div class="panel-footer">

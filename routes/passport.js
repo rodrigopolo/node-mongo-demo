@@ -2,14 +2,13 @@ module.exports = function(CONFIG, app, passport){
 
 	// Signin
 	app.get('/signin', function(req, res){
-		var msg = req.session.messages;
-		req.session.messages=null;
 		res.render('public/signin', {
-			title: 'Signin',
+			title: 'Sign in',
 			site: CONFIG.site,
 			user: req.user, 
 			path: req.url,
-			message: msg
+			email: req.flash('email'),
+			messages: req.flash('error')
 		});
 	});
 
@@ -22,7 +21,8 @@ module.exports = function(CONFIG, app, passport){
 				return next(err);
 			}
 			if (!user){
-				req.session.messages =  [info.message];
+				req.flash('email', req.body.email);
+				req.flash('error', [info.message]);
 				return res.redirect('/signin');
 			}
 			req.logIn(user, function(err){
