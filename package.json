@@ -1,16 +1,16 @@
 {
-  "name": "node-mongo-demo",
-  "version": "0.0.0",
+  "name": "passport-local-examples-login",
+  "version": "0.0.x",
   "dependencies": {
-    "express": "^3.5.1",
-    "ejs": "^1.0.0",
-    "ejs-locals": "^1.0.2",
-    "connect-flash": "^0.1.1",
-    "mongoose": "^3.8.8",
-    "connect-mongo": "^0.4.0",
-    "bcrypt": "^0.7.7",
-    "passport": "^0.2.0",
-    "passport-local": "^1.0.0",
-    "moment": "^2.5.1"
+    "express": "3.5.x",
+    "ejs": "1.0.x",
+    "ejs-locals": "1.0.x",
+    "connect-flash": "0.1.x",
+    "mongoose": "3.8.x",
+    "connect-mongo": "0.4.x",
+    "bcrypt": "0.7.x",
+    "passport": "0.2.x",
+    "passport-local": "1.0.x",
+    "moment": "2.5.x"
   }
 }

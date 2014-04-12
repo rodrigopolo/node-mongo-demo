@@ -1,7 +1,6 @@
-console.log(':P');
-
-
-
+/**
+ * JavaScript for the "Users" admin view.
+ **/
 $(function(){
 
 	// User delete confirmation dialog

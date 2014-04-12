@@ -1,46 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="">
+		<meta name="author" content="">
 
-    <title><%=site.name%> - <%=title%></title>
+		<title><%=site.name%> - <%=title%></title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="//cdn.jsdelivr.net/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
-    <!-- <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/slate/bootstrap.min.css" rel="stylesheet"> -->
+		<!-- Bootstrap core CSS loaded from jsDelivr -->
+		<link href="//cdn.jsdelivr.net/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom styles for this template -->
-    <link href="/css/default.css" rel="stylesheet">
+		<!-- Custom styles -->
+		<link href="/css/default.css" rel="stylesheet">
 
-    <!-- Extra CSSs loaded from a  view -->
-    <%-stylesheets%>
+		<!-- Extra CSSs loaded from an ejs view -->
+		<%-stylesheets%>
 
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.min.js"></script>
-      <script src="//cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-  </head>
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+			<script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.min.js"></script>
+			<script src="//cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+	</head>
+	<body>
 
-  <body>
+		<% include boilerplate/headbar %>
 
-    <% include boilerplate/headbar %>
-
-
-    <%- body %>
+		<%- body %>
 
 
 
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="//cdn.jsdelivr.net/jquery/1.11.0/jquery.min.js"></script>
-    <script src="//cdn.jsdelivr.net/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-    <%-scripts%>
-  </body>
+		<!-- Bootstrap core JavaScript loaded from jsDelivr -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="//cdn.jsdelivr.net/jquery/1.11.0/jquery.min.js"></script>
+		<script src="//cdn.jsdelivr.net/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+		<!-- Extra JSs loaded from an ejs view -->
+		<%-scripts%>
+
+	</body>
 </html>

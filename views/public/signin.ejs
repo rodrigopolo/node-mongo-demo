@@ -2,23 +2,20 @@
 layout('../boilerplate');
 stylesheet('/css/sign_in.css');
 %>
-
-    <div class="container">
-
-      <form action="/signin" method="post" class="form-signin" role="form">
-        <h2 class="form-signin-heading">Please sign in</h2>
-		    <% if (message) { %>
-    			<div class="alert alert-danger alert-dismissable">
-    				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-    				<strong>Warning!</strong> <%= message %>
-    			</div>
-		    <% } %>
-        <input name="email" type="email" class="form-control" placeholder="Email address" required autofocus>
-        <input name="password" type="password" class="form-control" placeholder="Password" required>
-        <label class="checkbox">
-          <input name="rememberme" type="checkbox" value="remember-me"> Remember me
-        </label>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-      </form>
-      
-    </div> <!-- /container -->
+<div class="container">
+	<form action="/signin" method="post" class="form-signin" role="form">
+		<h2 class="form-signin-heading">Please sign in</h2>
+			<% if (message) { %>
+				<div class="alert alert-danger alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+					<strong>Warning!</strong> <%= message %>
+				</div>
+			<% } %>
+		<input name="email" type="email" class="form-control" placeholder="Email address" required autofocus>
+		<input name="password" type="password" class="form-control" placeholder="Password" required>
+		<label class="checkbox">
+			<input name="rememberme" type="checkbox" value="remember-me"> Remember me
+		</label>
+		<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+	</form> 
+</div>
