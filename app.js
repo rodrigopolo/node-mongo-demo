@@ -61,7 +61,7 @@ if (cluster.isMaster) {
 	require('./routes/public')(CONFIG, app, cluster);
 
 	// Passport routes
-	require('./routes/passport')(CONFIG, app, passport);
+	require('./routes/passport')(CONFIG, app, models, passport);
 
 	// User routes
 	require('./routes/users')(CONFIG, app, ensureAuthenticated, models);

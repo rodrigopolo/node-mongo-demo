@@ -10,7 +10,7 @@ config = {
 	mongo: {
 		host: 'localhost',
 		port: 27017,
-		db: 'flexo',
+		db: 'demo',
 		options: {
 			server: {
 				auto_reconnect: true,
@@ -40,5 +40,21 @@ config = {
 		expire: 2592000000 // 30 days.
 	}
 }
+
+
+// Mailer, for password recovery
+// Check other transports: https://github.com/andris9/Nodemailer
+var nodemailer = require("nodemailer");
+config.mailer = {
+	recovery: "Example.com <password@example.com>",
+	transport: nodemailer.createTransport("SMTP",{
+		service: "Gmail",
+		auth: {
+			user: "user@gmail.com",
+			pass: "password"
+		}
+	})
+}
+
 
 module.exports = config;

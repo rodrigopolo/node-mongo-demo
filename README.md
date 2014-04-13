@@ -12,6 +12,10 @@ npm install
 
 ##Run
 
+* Copy the `config_sample.js` to `config.js`.
+* Edit `config.js` and set your own configurations.
+* Save the file and run.
+
 ###Linux/Unix/OSX
 
 ```

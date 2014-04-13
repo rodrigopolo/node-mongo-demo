@@ -5,10 +5,16 @@ stylesheet('/css/sign_in.css');
 <div class="container">
 	<form action="/signin" method="post" class="form-signin" role="form">
 		<h2 class="form-signin-heading">Please sign in</h2>
-		<% for(k in messages) { %>
+		<% for(k in errmsg) { %>
 			<div class="alert alert-danger alert-dismissable">
 				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-				<strong>Warning!</strong> <%= messages[k] %>
+				<strong>Warning!</strong> <%= errmsg[k] %>
+			</div>
+		<% } %>
+		<% for(k in scsmsg) { %>
+			<div class="alert alert-success alert-dismissable">
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+				<%= scsmsg[k] %>
 			</div>
 		<% } %>
 
@@ -25,6 +31,7 @@ stylesheet('/css/sign_in.css');
 		<input name="password" type="password" class="form-control" placeholder="Password" required>
 		<label class="checkbox">
 			<input name="rememberme" type="checkbox" value="remember-me"> Remember me
+			<p class="help-block"><a href="/users/reset/">Forgot password?</a></p>
 		</label>
 		<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
 	</form> 

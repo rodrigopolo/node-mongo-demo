@@ -296,7 +296,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 
 	}
 
-	
 	app.get('/users/:page(\\d+)?', ensureAuthenticated, user_list);
 	app.post('/users/:page(\\d+)?', ensureAuthenticated, user_list);
+
 }
