@@ -40,7 +40,6 @@ config = {
 	}
 }
 
-
 // Mailer, for password recovery
 // Check other transports: https://github.com/andris9/Nodemailer
 var nodemailer = require("nodemailer");

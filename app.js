@@ -1,6 +1,8 @@
 // Config file
 var CONFIG = require('./config');
 
+// Dev or production
+CONFIG.env = process.env.NODE_ENV || 'development';
 
 // Mongoose instance
 var mongoose = require('./lib/mongoose')(CONFIG);

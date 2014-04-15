@@ -78,7 +78,7 @@ module.exports = function(CONFIG, app, models, passport){
 								if(error){
 									console.log(error);
 								}else{
-									//console.log("Message sent: " + response.message);
+									console.log("Message sent: " + response.message);
 									req.flash('success', 'Email sent.');
 									req.flash('email', req.body.email);
 									res.redirect('/signin');

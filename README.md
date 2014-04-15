@@ -19,7 +19,7 @@ npm install
 ###Linux/Unix/OSX
 
 ```
-PORT=8080 node app.js
+PORT=8080 && NODE_ENV=production && node app.js
 ```
 
 or
@@ -32,8 +32,7 @@ node app.js
 ###Windows:
 
 ```
-set PORT=8080
-node app.js
+set PORT=8080 && set NODE_ENV=production && node app.js
 ```
 
 or In Windows PowerShell
