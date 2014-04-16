@@ -152,18 +152,29 @@ script('/js/user_new.js');
 									]
 								})%>
 							</div>
-							<% if(!self){ %>
-								<div class="form-group<%=(validation.role)?' has-error':''%>">
-									<label class="control-label" for="role">Role</label>
-									<%- select({
-										selected: item.role,
-										name: 'role',
-										id: 'role',
-										class: 'form-control',
-										options: roles
-									})%>
-								</div>
-							<% } %>
+							<% 
+							if(!self){
+								if(user.role>1){
+								%>
+								<input type="hidden" name="role" value="3">
+								<%
+								}else{
+
+								%>
+									<div class="form-group<%=(validation.role)?' has-error':''%>">
+										<label class="control-label" for="role">Role</label>
+										<%- select({
+											selected: item.role,
+											name: 'role',
+											id: 'role',
+											class: 'form-control',
+											options: roles
+										})%>
+									</div>
+								<% 
+								}
+							} 
+							%>
 					</div>
 
 					<div class="panel-footer">

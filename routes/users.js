@@ -78,6 +78,11 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 
 				// Save the new user
 				var usr = new models.users(req.body);
+
+				if(req.user.role>1){
+					usr.role = 3;
+				}
+
 				usr.save(function(err){
 					if(err){
 						if(err.code==11000){
@@ -112,20 +117,15 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 
 	// Show the edit form with the user data
 	app.get('/users/edit/:id/', ensureAuthenticated, function(req, res, next){
-		var rolePass = false;
-		if(req.user.role<=2){
-			rolePass = true;
-		}else{
-			if(req.user._id == req.params.id){
-				rolePass = true;
-			}
-		}
-
-		if(rolePass){
-			models.users.findOne({
-				_id: req.params.id
-			}, function(err, data){
-				if(data){
+		models.users.findOne({
+			_id: req.params.id
+		}, function(err, data){
+			if(data){
+				if(
+					(req.user.role==2 && data.role>2)		// Author can edit contrib only
+					|| req.user.role==1						// admin can edit everything
+					|| req.user._id == data._id.toString()	// is editing himself
+				){
 					res.render('users/detail', {
 						title: 'User - Edit',
 						site: CONFIG.site,
@@ -139,74 +139,61 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 						error_msg: ''
 					});
 				}else{
-					// 404 - user not found on DB
-					next();
+					forbiddenRes(req,res);
 				}
-			});
-
-		}else{
-			res.render('public/403', {
-				title: '403 - Forbidden',
-				site: CONFIG.site,
-				user: req.user,
-				path: req.url
-			});
-		}
-
+			}else{
+				// 404 - user not found on DB
+				next();
+			}
+		});
 	});
 
 	// Receive the edited user form data
 	app.post('/users/edit/:id/', ensureAuthenticated, function(req, res, next){
-
-		var rolePass = false;
-		if(req.user.role<=2){
-			rolePass = true;
-		}else{
-			if(req.user._id == req.params.id){
-				rolePass = true;
+		// Check for errors on POST data
+		var val_errors={};
+		var has_errors = false;
+		var error_msg = [];
+		var check = [
+			'name',
+			'email',
+			//'password', // don't validate empty password, if empty: do not change, if filled: change.
+			'timezone'
+			//'role' // don't validate role, users can't change their own role.
+		]
+		for(k in check){
+			if(!(req.body[check[k]])){
+				val_errors[check[k]]=true;
+				has_errors = true;
 			}
 		}
 
-		if(rolePass){
-			// Check for errors on POST data
-			var val_errors={};
-			var has_errors = false;
-			var error_msg = [];
-			var check = [
-				'name',
-				'email',
-				//'password', // don't validate empty password, if empty: do not change, if filled: change.
-				'timezone'
-				//'role' // don't validate role, users can't change their own role.
-			]
-			for(k in check){
-				if(!(req.body[check[k]])){
-					val_errors[check[k]]=true;
-					has_errors = true;
-				}
-			}
-
-			// Show the user form again highlighting the errors
-			if(has_errors){
-				error_msg[0] = 'Please fill in all fields.';
-				res.render('users/detail', {
-					title: 'User - Edit',
-					site: CONFIG.site,
-					user: req.user,
-					path: req.url,
-					form_action: '/users/update/'+req.params.id+'/',
-					roles: user_roles,
-					item: req.body,
-					self: req.body.role, // validate if is defined
-					validation: val_errors,
-					error_msg: error_msg
-				});
-			}else{
-				// Find selected user
-				models.users.findOne({
-					_id: req.params.id
-				}, function(err, user){
-					if(user){
+		// Show the user form again highlighting the errors
+		if(has_errors){
+			error_msg[0] = 'Please fill in all fields.';
+			res.render('users/detail', {
+				title: 'User - Edit',
+				site: CONFIG.site,
+				user: req.user,
+				path: req.url,
+				form_action: '/users/update/'+req.params.id+'/',
+				roles: user_roles,
+				item: req.body,
+				self: req.body.role, // validate if is defined
+				validation: val_errors,
+				error_msg: error_msg
+			});
+		}else{
+			// Find selected user
+			models.users.findOne({
+				_id: req.params.id
+			}, function(err, user){
+				if(user){
+					if(
+						(req.user.role==2 && user.role>2)		// Author can edit contrib only
+						|| req.user.role==1						// admin can edit everything
+						|| req.user._id == user._id.toString()	// is editing himself
+					){
 						// Modify values received from the form
 						user.name = req.body.name;
 						user.email = req.body.email;
@@ -249,40 +236,35 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 								res.redirect('/users/');
 							}
 						});
-
 					}else{
-						// 404 - user not found on DB
-						next();
+						forbiddenRes(req,res);
 					}
-				});
-			}
-		}else{
-			res.render('public/403', {
-				title: '403 - Forbidden',
-				site: CONFIG.site,
-				user: req.user,
-				path: req.url
+				}else{
+					// 404 - user not found on DB
+					next();
+				}
 			});
 		}
-
-
 	});
 
 	// Delete users
 	app.post('/users/delete/:id/', ensureAuthenticated, function(req, res){
-		checkRole(req, res, 2, function(){
-			// Prevent deleting the users account
-			if(req.user._id==req.params.id){
-				res.redirect('/users/');
-			}else{
-				// First, check if the user exists
-				models.users.findOne({
-					_id: req.params.id
-				}, function(err, user){
-					// User exists
-					if(user){
+		// Prevent deleting the users account
+		if(req.user._id==req.params.id){
+			res.redirect('/users/');
+		}else{
+			// First, check if the user exists
+			models.users.findOne({
+				_id: req.params.id
+			}, function(err, user){
+				// User exists
+				if(user){
+					if(
+						(req.user.role==2 && user.role>2)		// Author can delete contrib only
+						|| req.user.role==1						// admin can delete everything
+					){
 						// user removal
-						user.remove(function (err, deleted_user){
+						user.remove(function(err, deleted_user){
 							if(err){
 								res.redirect('/users/');
 							}else{
@@ -291,12 +273,14 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 							}
 						});
 					}else{
-						// 404 - user not found on DB
-						next();
+						forbiddenRes(req,res);
 					}
-				});
-			}
-		});
+				}else{
+					// 404 - user not found on DB
+					next();
+				}
+			});
+		}
 	});
 
 	// Show the index page with pagination
@@ -308,6 +292,10 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 			if(req.body.search){
 				var look_for = new RegExp(req.body.search, 'i');
 				find['$or'] = [ {'name': look_for}, {'email': look_for}];
+			}
+
+			if(req.user.role==2){
+				find.role = {$gte:2};
 			}
 
 			var page = (req.params.page || 1)-1;
@@ -350,13 +338,18 @@ module.exports = function(CONFIG, app, ensureAuthenticated, models){
 		if(req.user.role<=role){
 			cb();
 		}else{
-			res.render('public/403', {
-				title: '403 - Forbidden',
-				site: CONFIG.site,
-				user: req.user,
-				path: req.url
-			});
+			forbiddenRes(req,res);
 		}
+	}
+
+	function forbiddenRes(req,res){
+		res.status(403);
+		res.render('public/403', {
+			title: '403 - Forbidden',
+			site: CONFIG.site,
+			user: req.user,
+			path: req.url
+		});
 	}
 
 }

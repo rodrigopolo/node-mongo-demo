@@ -8,8 +8,7 @@ $(function(){
 
 	// Delete buttons
 	$('.udel').click(function(){
-		var $this = $(this);
-		var uid = $this.attr('data-id');
+		var uid = $(this).attr('data-id');
 		$('#del_confirm').attr('action', '/users/delete/'+uid+'/');
 		alerw.modal();
 	});
