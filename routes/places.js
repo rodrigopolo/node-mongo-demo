@@ -264,23 +264,19 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 			.limit(perPage)
 			.skip(perPage * page)
 			.exec(function(err, data){
-				if(data.length<1){
-					next();
-				}else{
-					models.places.find(find).count().exec(function(err, count){
-						res.render('places/index', {
-							title: 'Places',
-							site: CONFIG.site,
-							user: req.user,
-							path: req.url,
-							places: data,
-							search: req.body.search,
-							page: (page+1),
-							pages: Math.ceil(count / perPage),
-							messages: req.flash('success')
-						});
+				models.places.find(find).count().exec(function(err, count){
+					res.render('places/index', {
+						title: 'Places',
+						site: CONFIG.site,
+						user: req.user,
+						path: req.url,
+						places: data,
+						search: req.body.search,
+						page: (page+1),
+						pages: Math.ceil(count / perPage),
+						messages: req.flash('success')
 					});
-				}
+				});
 		});
 	}
 

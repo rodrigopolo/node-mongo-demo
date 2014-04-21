@@ -49,21 +49,35 @@ script('/js/places.js');
 						</tr>
 					</thead>
 					<tbody>
-						<% for(k in places){ %>
-						<tr>
-							<td><%=places[k].name%></td>
-							<td><%=places[k].author.name%></td>
-							<td class="visible-md visible-lg text-right"><%=localTime(places[k].edited,user.timezone,'h:mma DD-MMM-YY')%></td>
-							<td class="visible-md visible-lg text-right"><%=localTime(places[k].created,user.timezone,'h:mma DD-MMM-YY')%></td>
+						<% 
+						if(places.length>0){
 
-							<td>
-								<div class="btn-group pull-right">
-									<a href="/places/edit/<%=places[k]._id%>/" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-pencil"></span></a>
-									<button data-id="<%=places[k]._id%>" type="button" class="btn btn-default btn-xs pdel"><span class="glyphicon glyphicon-remove"></span></button>
-								</div>
-							</td>
-						</tr>
-						<% } %>
+
+							for(k in places){ 
+								%>
+								<tr>
+									<td><%=places[k].name%></td>
+									<td><%=places[k].author.name%></td>
+									<td class="visible-md visible-lg text-right"><%=localTime(places[k].edited,user.timezone,'h:mma DD-MMM-YY')%></td>
+									<td class="visible-md visible-lg text-right"><%=localTime(places[k].created,user.timezone,'h:mma DD-MMM-YY')%></td>
+
+									<td>
+										<div class="btn-group pull-right">
+											<a href="/places/edit/<%=places[k]._id%>/" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-pencil"></span></a>
+											<button data-id="<%=places[k]._id%>" type="button" class="btn btn-default btn-xs pdel"><span class="glyphicon glyphicon-remove"></span></button>
+										</div>
+									</td>
+								</tr>
+								<%
+							}
+						}else{
+							%>
+							<tr>
+								<td colspan="5"><h2 class="text-center"><span class="label label-default">Empty</span></h2><br></td>
+							</tr>
+							<%
+						}
+						%>
 					</tbody>
 				</table>
 				<div class="panel-footer">
