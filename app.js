@@ -40,6 +40,9 @@ require('./routes/passport')(CONFIG, app, models, passport);
 // User routes
 require('./routes/users')(CONFIG, app, ensureAuthenticated, models);
 
+// Places
+require('./routes/places')(CONFIG, app, ensureAuthenticated, mongoose, models);
+
 
 // Redirect all trailing slashes gloablly in express 
 app.use(function(req, res, next) {
