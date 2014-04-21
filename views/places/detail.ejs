@@ -50,7 +50,7 @@ script('/js/new_edit_places.js');
 
 							<div class="form-group<%=(validation.name)?' has-error':''%>">
 								<label class="control-label" for="name">Description</label>
-								<textarea name="description" id="description" class="form-control" rows="3" required><%=item.description%></textarea>
+								<textarea name="description" id="description" class="form-control" rows="3" required><%=(item.description)?item.description:''%></textarea>
 							</div>
 
 							<!-- Location Field -->
