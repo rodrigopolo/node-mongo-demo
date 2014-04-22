@@ -4,7 +4,8 @@ config = {
 	},
 	express:{
 		port: 3000, // Can be overwritten in console by typing: PORT=1234 node app.js
-		behind_proxy: false
+		behind_proxy: false,
+		public_dir: __dirname + '/public'
 	},
 	mongo: {
 		host: 'localhost',
@@ -53,6 +54,5 @@ config.mailer = {
 		}
 	})
 }
-
 
 module.exports = config;
