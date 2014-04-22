@@ -1,11 +1,8 @@
+var multiparty = require('multiparty');
+var util = require('util');
+var fs = require('fs');
+
 module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
-
-
-
-
-
-
-
 
 	// Show the place creation form
 	app.get('/places/create', ensureAuthenticated, function(req, res, next){
@@ -22,14 +19,25 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 	});
 
 	// Receive the new place form data
-	app.post('/places/create', ensureAuthenticated, function(req, res, next){
+	app.post('/places/create', ensureAuthenticated, fileUploads, function(req, res, next){
+
+
+		var img = null;
+		if(req.body.files.image){
+			img = req.body.files.image;
+			if(img.type!='image/png' && img.type!='image/jpeg'){
+				fs.unlinkSync(img.path);
+				img = null;
+			}
+		}
+
+
 		// Check for errors on POST data
 		var val_errors={};
 		var has_errors = false;
 		var error_msg = [];
 		var check = [
 			'name',
-			'image',
 			'description'
 		]
 		for(k in check){
@@ -38,15 +46,24 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 				has_errors = true;
 			}
 		}
-		if(req.body.location.coordinates){
-			req.body.location.coordinates = JSON.parse(req.body.location.coordinates);
+		
+
+
+		if(req.body.coordinates){
+			req.body.coordinates = JSON.parse(req.body.coordinates);
 		}else{
 			val_errors['location'] = 'Set a point or path.'
 			has_errors = true;
 		}
 
+		if(!img){
+			val_errors['image'] = 'Set a point or path.'
+			has_errors = true;
+		}
+
 		// Show the user form again highlighting the errors
 		if(has_errors){
+			fs.unlinkSync(img.path);
 			error_msg[0] = 'Please fill in all fields.';
 			res.render('places/detail', {
 				title: 'Places - Create',
@@ -64,11 +81,11 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 			var now = new Date();
 			var place = new models.places({
 				name: req.body.name,
-				image: req.body.image,
+				imgext: img.ext,
 				description: req.body.description,
 				location: {
-					type: req.body.location.type,
-					coordinates: req.body.location.coordinates
+					type: req.body.type,
+					coordinates: req.body.coordinates
 				},
 				author: req.user._id,
 				created: now,
@@ -76,7 +93,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 				edited: now
 			});
 
-			place.save(function(err){
+			place.save(function(err,new_place){
 				if(err){
 					if(err.code==11000){
 						// If user email already exist
@@ -98,8 +115,17 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 						error_msg: error_msg
 					});
 				} else {
-					req.flash('success', 'Place has been created.');
-					res.redirect('/places/');
+				
+					// Move the file to the public folder and set the name as the ID
+					moveFile(img.path, CONFIG.express.public_dir+'/img/places/'+new_place._id+img.ext,function(err){
+						if(err){
+							console.log(err);
+						}
+						req.flash('success', 'Place has been created.');
+						res.redirect('/places/');
+					});
+
+
 				}
 			});
 		}
@@ -111,6 +137,8 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 			_id: req.params.id
 		}, function(err, data){
 			if(data){
+				data.type = data.location.type;
+				data.coordinates = data.location.coordinates;
 				res.render('places/detail', {
 					title: 'Places - Edit',
 					site: CONFIG.site,
@@ -129,14 +157,25 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 	});
 
 	// Receive the edited place form data
-	app.post('/places/edit/:id/', ensureAuthenticated, function(req, res, next){
+	app.post('/places/edit/:id/', ensureAuthenticated, fileUploads, function(req, res, next){
+
+
+		var img = null;
+		if(req.body.files.image){
+			img = req.body.files.image;
+			if(img.type!='image/png' && img.type!='image/jpeg'){
+				fs.unlinkSync(img.path);
+				img = null;
+			}
+		}
+
+
 		// Check for errors on POST data
 		var val_errors={};
 		var has_errors = false;
 		var error_msg = [];
 		var check = [
 			'name',
-			'image',
 			'description'
 		]
 		for(k in check){
@@ -146,8 +185,8 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 			}
 		}
 
-		if(req.body.location.coordinates){
-			req.body.location.coordinates = JSON.parse(req.body.location.coordinates);
+		if(req.body.coordinates){
+			req.body.coordinates = JSON.parse(req.body.coordinates);
 		}else{
 			val_errors['location'] = 'Set a point or path.'
 			has_errors = true;
@@ -173,14 +212,23 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 			}, function(err, place){
 				if(place){
 
+					if(img){
+						// Move the file to the public folder and set the name as the ID
+						moveFile(img.path, CONFIG.express.public_dir+'/img/places/'+place._id+img.ext,function(err){
+							if(err){
+								console.log(err);
+							}
+						});
+						place.imgext = img.ext;
+					}
+					
 					// Modify values received from the form
 					place.name = req.body.name;
-					place.image = req.body.image;
 					place.description = req.body.description;
 					place.last_edit_by = req.user._id;
 					place.edited = new Date();
-					place.location.type = req.body.location.type;
-					place.location.coordinates = req.body.location.coordinates;
+					place.location.type = req.body.type,
+					place.location.coordinates = req.body.coordinates
 
 
 					// Save the place
@@ -212,7 +260,6 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 
 				}else{
 					// 404 - place not found on DB
-					console.log('???');
 					next();
 				}
 			});
@@ -234,6 +281,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 					if(err){
 						res.redirect('/places/');
 					}else{
+						fs.unlinkSync(CONFIG.express.public_dir+'/img/places/'+deleted_place._id+deleted_place.imgext);
 						req.flash('success', 'User "'+deleted_place.name+'"" has been deleted.');
 						res.redirect('/places/');
 					}
@@ -299,4 +347,62 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 	// 		});
 	// 	});
 	// });
+
+	function fileUploads(req, res, next){
+		var form = new multiparty.Form({ 
+			autoFiles: true,
+			uploadDir: __dirname + '/../tmp'
+			//,maxFilesSize: 5242880
+		});
+		form.parse(req, function(err, fields, files){
+			// if(err){
+			// 	res.writeHead(200, {'content-type': 'text/plain'});
+			// 	res.end("invalid request: " + err.message);
+			// 	return;
+			// }
+			var form_files = {};
+			for(k in files){
+				for(m in files[k]){
+					if(files[k][m].size<1){
+						fs.unlinkSync(files[k][m].path);
+					}else{
+						form_files[k] = {
+							name: files[k][m].originalFilename,
+							type: files[k][m].headers['content-type'],
+							path: files[k][m].path,
+							size: files[k][m].size,
+							ext: files[k][m].originalFilename.substr(files[k][m].originalFilename.lastIndexOf('.'))
+						};
+					}
+				}
+			}
+			for(k in fields){
+				fields[k] = fields[k][0]
+			}
+						req.body = fields;
+			req.body.files = form_files;
+			next();
+		});
+	}
+
+	function moveFile(source, target, callback) {
+		//console.log('De: '+source+"\n A: "+target);
+		fs.rename(source, target, function (err) {
+			if (!err){
+				callback();
+			} else {
+				var is = fs.createReadStream(source);
+				var os = fs.createWriteStream(target);
+				is.on('end', function (err) {
+					if (!err) {
+						fs.unlink(source, callback);
+					} else {
+						callback(err);
+					}
+				});
+				is.pipe(os);
+			}
+		});
+	};
+
 }
