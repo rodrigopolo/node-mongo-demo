@@ -1,10 +1,10 @@
-###How to install a Node.js and MongoDB complete development enviroment (64-bit) on Windows 8, Ubuntu 14.04 and OS X 10.9 Mavericks
+###How to install a Node.js and MongoDB complete development environment (64-bit) on Windows 8, Ubuntu 14.04 and OS X 10.9 Mavericks
 
 ##Windows
 **NOTE**: All installation steps that run in the `Command Prompt (Admin)` are done as an administrator.
 
 ###MongoDB
-Add MongoDB bin path to your system path enviroment variable
+Add MongoDB bin path to your system path environment variable
 
 ```
 c:\mongodb\bin
@@ -76,11 +76,11 @@ After downloading:
 
 1. Install Python 2.7.6, (`v2.7` recommended, `v3.x.x` is __*not*__ supported).
 2. Install Visual Studio 2012 Express for Windows Desktop.
-3. Add `C:\Python27\` to your system `PATH` enviroment variable.
+3. Add `C:\Python27\` to your system `PATH` environment variable.
 
 
 
-Source information about development enviroment on Windows 8
+Source information about development environment on Windows 8
 * [Source 1](http://stackoverflow.com/a/21366601/218418)
 * [Source 2](https://github.com/TooTallNate/node-gyp#installation)
 * [Source 3](http://stackoverflow.com/a/17934330/218418)
@@ -92,7 +92,7 @@ Source information about development enviroment on Windows 8
 
 ###MongoDB
 
-Open Terminal an enter the following code line by line:
+Open Terminal and enter the following code line by line:
 
 ```
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
@@ -113,13 +113,60 @@ sudo apt-get install nodejs
 ```
 
 
+Make npm global installs possible
 ```
 npm config set prefix ~/.npm
 echo 'export PATH=$HOME/.npm/bin:$PATH' >> ~/.bashrc 
 . ~/.bashrc
-
 ```
 
 [Source](http://stackoverflow.com/a/19379795/218418)
+
+
+##OS X >= 10.8
+
+**IMPORTANT** It is required to have installed `Xcode` + `Command Line Tools` installed previous to install MongoDB from Homebrew, `Xcode` can be installed from the `Mac App Store`, once installed, you can install the `Command Line Tools` going to `Xcode` `Preferences` menu, and then `Downloads` tab, just click on the `Install` button.
+
+Install Homebrew from Terminal
+
+```
+ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+```
+
+###MongoDB
+
+Install MongoDB with Homebrew
+
+```
+brew update
+brew install mongodb
+mkdir -p ~/Library/LaunchAgents
+ln -sfv /usr/local/opt/mongodb/*.plist ~/Library/LaunchAgents
+launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mongodb.plist
+```
+
+###Node.js
+Download and install Node.js
+
+Make npm global installs possible
+```
+npm config set prefix ~/.npm
+echo 'export PATH=$HOME/.npm/bin:$PATH' >> ~/.bashrc 
+. ~/.bashrc
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
