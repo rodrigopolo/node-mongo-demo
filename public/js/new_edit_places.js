@@ -2,6 +2,8 @@
  * JavaScript for the "Places" admin view.
  **/
 
+document.fullscreenEnabled = document.fullscreenEnabled || document.mozFullScreenEnabled || document.documentElement.webkitRequestFullScreen;
+
 google.maps.Polygon.prototype.getBounds = function() {
 	var bounds = new google.maps.LatLngBounds();
 	var paths = this.getPaths();
@@ -122,23 +124,29 @@ rpGMF = {
 		marker.setMap(null);
 	},
 	customBtn: function(){
-		var controlDiv = document.createElement('div');
-		controlDiv.index = 1;
-		controlDiv.className = "gmnoprint custom-control-container";
-		var controlUIContainer = document.createElement('div');
-		var controlUI = document.createElement('div');
-		controlUIContainer.className = "gm-style-mtc";
-		controlDiv.appendChild(controlUIContainer);
-		controlUI.className = "custom-control";
-		controlUI.title = 'Toggle Full Screen';
-		controlUI.innerHTML = 'Full Screen';
-		controlUIContainer.appendChild(controlUI);
 
-		google.maps.event.addDomListener(controlUI, 'click', function() {
-			rpGMF.mapdom.toggleFullScreen();
-		});
+		if(document.fullscreenEnabled){
+			var controlDiv = document.createElement('div');
+			controlDiv.index = 1;
+			controlDiv.className = "gmnoprint custom-control-container";
+			var controlUIContainer = document.createElement('div');
+			var controlUI = document.createElement('div');
+			controlUIContainer.className = "gm-style-mtc";
+			controlDiv.appendChild(controlUIContainer);
+			controlUI.className = "custom-control";
+			controlUI.title = 'Toggle Full Screen';
+			controlUI.innerHTML = 'Full Screen';
+			controlUIContainer.appendChild(controlUI);
 
-		rpGMF.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
+			google.maps.event.addDomListener(controlUI, 'click', function() {
+				console.log(rpGMF.mapdom);
+				rpGMF.mapdom.toggleFullScreen();
+			});
+
+			rpGMF.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
+			
+		}
+
 	}
 
 };
