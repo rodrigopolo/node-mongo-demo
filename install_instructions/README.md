@@ -1,5 +1,11 @@
 ###How to install a Node.js and MongoDB complete development environment (64-bit) on Windows 8, Ubuntu 14.04 and OS X 10.9 Mavericks
 
+Watch the videos following this guide on each OS:
+
+* [Ubuntu 14.04](http://youtu.be/xtDhjzi5va8)
+* [Windows 8](http://youtu.be/ryDwG4lDB4o)
+* [OS X 10.9](http://youtu.be/fxT_8GbADQg)  
+
 ##Windows
 **NOTE**: All installation steps that run in the `Command Prompt (Admin)` are done as an administrator.
 
@@ -80,10 +86,7 @@ After downloading:
 
 
 
-Source information about development environment on Windows 8
-* [Source 1](http://stackoverflow.com/a/21366601/218418)
-* [Source 2](https://github.com/TooTallNate/node-gyp#installation)
-* [Source 3](http://stackoverflow.com/a/17934330/218418)
+
 
 
 
@@ -101,8 +104,6 @@ sudo apt-get update
 sudo apt-get install mongodb-org
 ```
 
-[Source](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/)
-
 ###Node.js
 
 ```
@@ -119,8 +120,6 @@ npm config set prefix ~/.npm
 echo 'export PATH=$HOME/.npm/bin:$PATH' >> ~/.bashrc 
 . ~/.bashrc
 ```
-
-[Source](http://stackoverflow.com/a/19379795/218418)
 
 
 ##OS X >= 10.8
@@ -156,17 +155,39 @@ echo 'export PATH=$HOME/.npm/bin:$PATH' >> ~/.bashrc
 ```
 
 
+####This guide was made thanks to the following sources:
+* For Windows 8
+  * [stackoverflow.com](http://stackoverflow.com/a/21366601/218418)
+  * [github.com](https://github.com/TooTallNate/node-gyp#installation)
+  * [stackoverflow.com](http://stackoverflow.com/a/17934330/218418)
+* For Ubuntu
+  * [mongodb.org](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/)
+  * [stackoverflow.com](http://stackoverflow.com/a/19379795/218418)
+* For OS X
+  * [mongodb.org](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/)
 
 
+## License
 
+(The MIT License)
 
+Copyright (c) by Rodrigo Polo http://RodrigoPolo.com
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-
-
-
-
-
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
