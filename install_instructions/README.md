@@ -151,6 +151,7 @@ Make npm global installs possible
 ```
 npm config set prefix ~/.npm
 echo 'export PATH=$HOME/.npm/bin:$PATH' >> ~/.bashrc 
+echo . ~/.bashrc >> ~/.bash_profile
 . ~/.bashrc
 ```
 
