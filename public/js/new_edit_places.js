@@ -29,9 +29,9 @@ rpGMF = {
 		var plarr=[];
 		var points = poly.getPath().getArray();
 		for(k in points){
-			plarr.push([points[k].A,points[k].k]);
+			plarr.push([points[k].B,points[k].k]);
 		}
-		plarr.push([points[0].A,points[0].k]);
+		plarr.push([points[0].B,points[0].k]);
 		return [plarr];
 	},
 	polyChanged: function(){
@@ -93,7 +93,7 @@ rpGMF = {
 		$('#type').val('Polygon');
 	},
 	updateFieldMark: function(pos){
-		$('#coordinates').val(JSON.stringify([pos.A, pos.k]));
+		$('#coordinates').val(JSON.stringify([pos.B, pos.k]));
 		$('#type').val('Point');
 	},
 	drawMarker: function(pos){
@@ -120,7 +120,7 @@ rpGMF = {
 		if(rpGMF.place_point){
 			rpGMF.place_point.setMap(null);
 		}
-		rpGMF.drawMarker([pos.k, pos.A]);
+		rpGMF.drawMarker([pos.k, pos.B]);
 		marker.setMap(null);
 	},
 	customBtn: function(){
