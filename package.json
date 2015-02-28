@@ -10,7 +10,7 @@
     "connect-mongo": "0.4.x",
     "passport": "0.2.x",
     "passport-local": "1.0.x",
-    "bcrypt": "0.7.x",
+    "bcrypt": "0.8.x",
     "crypto": "0.0.3",
     "urlsafe-base64": "0.0.2",
     "nodemailer": "0.6.x",
