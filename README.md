@@ -2,13 +2,13 @@
 
 A complete, working and MIT licensed Node.js-MongoDB [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) App that uses most common and useful Node.js modules and [Bootstrap](http://getbootstrap.com/) front-end framework, designed to understand how to create and develop a Node.js-MongoDB project with the aim to give a cornerstone for future projects to any developer..
 
->**NOTICE**: This demo has been updated to use Node v0.12.0 and MongoDB 3.0.0-rc11, [bcrypt](https://www.npmjs.com/package/bcrypt) has some issues with each node version.  
->**RELEVANCE**: This demo was made before Express 4 was officially released and supported by many other libraries, many things changed since the first publication, nevertheless this demo still work and can be an excellent example on how to do a CRUD project.
-
 ##Install
 
-This demo uses node.js, MongoDB and `bcrypt` to be able to hash user passwords, `bcrypt` needs a development environment ready for compiling, to have a good developer environment ready for compilation read the `README.md` inside the `install_instructions` folder, after having all your dependencies installed you can continue with this guide.
+This demo uses `bcrypt` to be able to hash user passwords, `bcrypt` is compiled by `node-gyp` on installation, and in order to compile this module source code you need some pre-installed tools, here is a link where you can find which tools are required and how to intall them in your OS:
 
+[How to install node-gyp.](https://github.com/TooTallNate/node-gyp#installation)
+
+After making sure you have `node-gyp` correclty installed and working, install this demo running this commands on your termial:
 
 ```
 git clone https://github.com/rodrigopolo/node-mongo-demo.git
