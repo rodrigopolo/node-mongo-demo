@@ -111,14 +111,12 @@ rpGMF = {
 		});
 
 		if(rpGMF.firstLoad){
-			console.log('First load');
 			rpGMF.firstLoad = false;
 			rpGMF.map.setCenter(mrkpos)
 			rpGMF.map.setZoom(8);
 		}
 	},
 	moveMarker: function(marker){
-		console.log(marker);
 		var gpos = marker.getPosition();
 		var pos = {lat: gpos.A, lng: gpos.F};
 		rpGMF.updateFieldMark(pos);
@@ -144,7 +142,6 @@ rpGMF = {
 			controlUIContainer.appendChild(controlUI);
 
 			google.maps.event.addDomListener(controlUI, 'click', function() {
-				console.log(rpGMF.mapdom);
 				rpGMF.mapdom.toggleFullScreen();
 			});
 
@@ -176,7 +173,6 @@ $(function(){
 	if(place.type=='Polygon'){
 		rpGMF.drawPolygon(place.coordinates);
 	}else if(place.type=='Point'){
-		console.log(place.coordinates);
 		rpGMF.drawMarker({
 			lat:place.coordinates[1],
 			lng:place.coordinates[0]
@@ -209,14 +205,12 @@ $(function(){
 
 	google.maps.event.addListener(drawingManager, 'overlaycomplete', function (e) {
 		drawingManager.setDrawingMode(null);
-		console.log(e.overlay);
 		if(e.type == google.maps.drawing.OverlayType.MARKER){
 			if(rpGMF.place_polygon){
 				rpGMF.delPoly(rpGMF.place_polygon);
 			}
 			rpGMF.moveMarker(e.overlay);
 		}else if(e.type == google.maps.drawing.OverlayType.POLYGON){
-			console.log('Polygon');
 			if(rpGMF.place_point){
 				rpGMF.place_point.setMap(null);
 			}
