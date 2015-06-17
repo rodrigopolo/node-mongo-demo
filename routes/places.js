@@ -63,7 +63,9 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 
 		// Show the user form again highlighting the errors
 		if(has_errors){
-			fs.unlinkSync(img.path);
+			if(img){
+				fs.unlinkSync(img.path);
+			}
 			error_msg[0] = 'Please fill in all fields.';
 			res.render('places/detail', {
 				title: 'Places - Create',

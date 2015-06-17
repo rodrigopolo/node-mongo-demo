@@ -29,9 +29,9 @@ rpGMF = {
 		var plarr=[];
 		var points = poly.getPath().getArray();
 		for(k in points){
-			plarr.push([points[k].B,points[k].k]);
+			plarr.push([points[k].F,points[k].A]);
 		}
-		plarr.push([points[0].B,points[0].k]);
+		plarr.push([points[0].F,points[0].A]);
 		return [plarr];
 	},
 	polyChanged: function(){
@@ -93,11 +93,11 @@ rpGMF = {
 		$('#type').val('Polygon');
 	},
 	updateFieldMark: function(pos){
-		$('#coordinates').val(JSON.stringify([pos.B, pos.k]));
+		$('#coordinates').val(JSON.stringify([pos.lng,pos.lat]));
 		$('#type').val('Point');
 	},
 	drawMarker: function(pos){
-		var mrkpos = new google.maps.LatLng(pos[0],pos[1]);
+		var mrkpos = new google.maps.LatLng(pos.lat,pos.lng);
 		rpGMF.place_point = new google.maps.Marker({
 			position: mrkpos,
 			draggable: true,
@@ -105,23 +105,28 @@ rpGMF = {
 		});
 
 		google.maps.event.addListener(rpGMF.place_point,'drag', function(event) {
-			rpGMF.updateFieldMark(rpGMF.place_point.getPosition());
+			var gpos = rpGMF.place_point.getPosition();
+			var pos = {lat: gpos.A, lng: gpos.F};
+			rpGMF.updateFieldMark(pos);
 		});
 
 		if(rpGMF.firstLoad){
+			console.log('First load');
 			rpGMF.firstLoad = false;
 			rpGMF.map.setCenter(mrkpos)
 			rpGMF.map.setZoom(8);
 		}
 	},
 	moveMarker: function(marker){
-		var pos = marker.getPosition();
+		console.log(marker);
+		var gpos = marker.getPosition();
+		var pos = {lat: gpos.A, lng: gpos.F};
 		rpGMF.updateFieldMark(pos);
 		if(rpGMF.place_point){
 			rpGMF.place_point.setMap(null);
 		}
-		rpGMF.drawMarker([pos.k, pos.B]);
-		marker.setMap(null);
+		rpGMF.drawMarker(pos);
+		 marker.setMap(null);
 	},
 	customBtn: function(){
 
@@ -144,7 +149,7 @@ rpGMF = {
 			});
 
 			rpGMF.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
-			
+
 		}
 
 	}
@@ -156,8 +161,7 @@ $(function(){
 
 	var mapOptions = {
 		zoom: 2,
-		center: new google.maps.LatLng(17, -35),
-		tilt: 0,
+		center: {lat: 17, lng: -35},
 		mapTypeId: google.maps.MapTypeId.HYBRID,
 		mapTypeControl: true,
 		mapTypeControlOptions: {
@@ -165,20 +169,22 @@ $(function(){
 			position: google.maps.ControlPosition.RIGHT_TOP
 		}
 	};
-
 	
 	rpGMF.map = new google.maps.Map(document.getElementById('location'), mapOptions);
 
-
+	// first load
 	if(place.type=='Polygon'){
 		rpGMF.drawPolygon(place.coordinates);
 	}else if(place.type=='Point'){
-		rpGMF.drawMarker([place.coordinates[1], place.coordinates[0]]);
+		console.log(place.coordinates);
+		rpGMF.drawMarker({
+			lat:place.coordinates[1],
+			lng:place.coordinates[0]
+		});
 	}
 
 
 	var drawingManager = new google.maps.drawing.DrawingManager({
-		//drawingMode: google.maps.drawing.OverlayType.POLYGON,
 		drawingControl: true,
 		drawingControlOptions: {
 			position: google.maps.ControlPosition.TOP_CENTER,
@@ -186,10 +192,6 @@ $(function(){
 				google.maps.drawing.OverlayType.MARKER,
 				google.maps.drawing.OverlayType.POLYGON,
 			]
-		},
-		markerOptions: {
-			// draggable: true
-			//icon: 'images/beachflag.png'
 		},
 		polygonOptions: {
 			strokeColor: '#FF0000',
@@ -205,22 +207,23 @@ $(function(){
 	});
 	drawingManager.setMap(rpGMF.map);
 
-
 	google.maps.event.addListener(drawingManager, 'overlaycomplete', function (e) {
 		drawingManager.setDrawingMode(null);
+		console.log(e.overlay);
 		if(e.type == google.maps.drawing.OverlayType.MARKER){
 			if(rpGMF.place_polygon){
 				rpGMF.delPoly(rpGMF.place_polygon);
 			}
 			rpGMF.moveMarker(e.overlay);
 		}else if(e.type == google.maps.drawing.OverlayType.POLYGON){
+			console.log('Polygon');
 			if(rpGMF.place_point){
 				rpGMF.place_point.setMap(null);
 			}
 			rpGMF.movePoly(e.overlay);
 		}
 	});
-
+	
 	rpGMF.customBtn();
 
 	$(document).bind("fullscreenchange", function() {
@@ -232,10 +235,7 @@ $(function(){
 		}
 	});
 
-
-// Returns the area of a closed path. The computed area uses the same units as the radius. The radius defaults to the Earth's radius in meters, in which case the area is in square meters.
-// https://developers.google.com/maps/documentation/javascript/reference?csw=1#spherical
-// google.maps.geometry.spherical.computeArea(rpGMF.place_polygon.getPath());
-	
-
+	// Returns the area of a closed path. The computed area uses the same units as the radius. The radius defaults to the Earth's radius in meters, in which case the area is in square meters.
+	// https://developers.google.com/maps/documentation/javascript/reference?csw=1#spherical
+	// google.maps.geometry.spherical.computeArea(rpGMF.place_polygon.getPath());
 });
