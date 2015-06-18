@@ -18,7 +18,7 @@ google.maps.Polygon.prototype.getBounds = function() {
 }
 
 
-rpGMF = {
+var rpGMF = {
 	firstLoad: (place)?true:false,
 	place_polygon: null,
 	place_polygon_path: null,

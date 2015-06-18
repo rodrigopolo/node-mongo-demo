@@ -14,10 +14,12 @@ body {
 
 
 /* Map */
-.gmap{
-	height: 300px;
+.gmap {
+    height: 100%;
+    width: 100%;
+    min-height:300px;
+    min-width:500px;
 }
-
 .fullscreen{
 	height: 100%;
 }
