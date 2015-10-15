@@ -29,9 +29,9 @@ var rpGMF = {
 		var plarr=[];
 		var points = poly.getPath().getArray();
 		for(k in points){
-			plarr.push([points[k].K,points[k].G]);
+			plarr.push([points[k].lng(),points[k].lat()]);
 		}
-		plarr.push([points[0].K,points[0].G]);
+		plarr.push([points[0].lng(),points[0].lat()]);
 		return [plarr];
 	},
 	polyChanged: function(){
@@ -97,6 +97,7 @@ var rpGMF = {
 		$('#type').val('Point');
 	},
 	drawMarker: function(pos){
+
 		var mrkpos = new google.maps.LatLng(pos.lat,pos.lng);
 		rpGMF.place_point = new google.maps.Marker({
 			position: mrkpos,
@@ -106,7 +107,7 @@ var rpGMF = {
 
 		google.maps.event.addListener(rpGMF.place_point,'drag', function(event) {
 			var gpos = rpGMF.place_point.getPosition();
-			var pos = {lat: gpos.A, lng: gpos.F};
+			var pos = {lat: gpos.lat(), lng: gpos.lng()};
 			rpGMF.updateFieldMark(pos);
 		});
 
@@ -118,7 +119,7 @@ var rpGMF = {
 	},
 	moveMarker: function(marker){
 		var gpos = marker.getPosition();
-		var pos = {lat: gpos.A, lng: gpos.F};
+		var pos = {lat: gpos.lat(), lng: gpos.lng()};
 		rpGMF.updateFieldMark(pos);
 		if(rpGMF.place_point){
 			rpGMF.place_point.setMap(null);
