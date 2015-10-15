@@ -29,9 +29,9 @@ var rpGMF = {
 		var plarr=[];
 		var points = poly.getPath().getArray();
 		for(k in points){
-			plarr.push([points[k].F,points[k].A]);
+			plarr.push([points[k].K,points[k].G]);
 		}
-		plarr.push([points[0].F,points[0].A]);
+		plarr.push([points[0].K,points[0].G]);
 		return [plarr];
 	},
 	polyChanged: function(){
