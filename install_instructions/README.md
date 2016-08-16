@@ -1,4 +1,73 @@
-###How to install a Node.js and MongoDB complete development environment (64-bit) on Windows 8, Ubuntu 14.04 and OS X 10.9 Mavericks
+# Instructions
+
+>Updated 2016-08-16
+
+###OS X 10.11.5 - El Capitan
+Install [Homebrew](http://brew.sh/) and then run this commands on the Terminal:
+```
+brew update
+brew install node mongodb
+brew services start mongodb
+```
+
+###Ubuntu 16.04.1 LTS
+```
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+sudo apt-get install -y nodejs mongodb-org
+sudo service mongod start
+```
+
+###Windows
+
+####Download
+* [Node.js](https://www.mongodb.com/download-center)
+* [Git](https://www.mongodb.com/download-center)
+* [OpenSSL required for MongoDB](http://slproweb.com/download/Win64OpenSSL_Light-1_0_2h.exe)
+* [MongoDB](http://downloads.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-3.2.9.zip)
+
+
+Install Node.js, Git and OpenSSL using the downloaded setup executable.
+
+Using the Command Prompt as an Administrator, create the MongoDB directories:
+```
+cd \
+mkdir c:\mongodb\data
+mkdir c:\mongodb\data\db
+mkdir c:\mongodb\logs
+mkdir c:\mongodb\conf
+```
+
+Extract `bin` folder from MongoDB zip file to to the `C:\mongodb` folder and add the `c:\mongodb\bin` path to your system path environment variable.
+
+Create the config file `c:\mongodb\mongodb.conf` with the following contents:
+```
+# mongodb.conf
+
+# Data
+dbpath=c:\mongodb\data\db
+
+# Log
+logpath=c:\mongodb\logs\mongodb.log
+logappend=true
+
+# Only run on localhost for development
+bind_ip=127.0.0.1
+
+# Default MongoDB port
+port=27017
+```
+
+Install and start MongoDB as a service using the Command Prompt as an Administrator:
+```
+mongod --install --config c:\mongodb\mongodb.conf --logpath c:\mongodb\logs\mongodb.log
+net start MongoDB
+```
+
+### Legacy instructions (old)
+
+How to install a Node.js and MongoDB complete development environment (64-bit) on Windows 8, Ubuntu 14.04 and OS X 10.9 Mavericks
 
 Watch the videos following this guide on each OS:
 
