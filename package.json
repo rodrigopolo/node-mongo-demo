@@ -1,20 +1,25 @@
 {
-  "name": "passport-local-examples-login",
+  "name": "node-mongo-demo",
   "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
   "dependencies": {
-    "bcrypt": "^0.8.3",
-    "connect-flash": "0.1.x",
-    "connect-mongo": "0.4.x",
+    "bcryptjs": "^2.3.0",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^1.3.2",
     "crypto": "0.0.3",
     "ejs": "1.0.x",
     "ejs-locals": "1.0.x",
-    "express": "3.5.x",
-    "moment": "2.5.x",
-    "mongoose": "3.8.x",
-    "multiparty": "3.2.x",
-    "nodemailer": "0.6.x",
-    "passport": "0.2.x",
-    "passport-local": "1.0.x",
-    "urlsafe-base64": "0.0.2"
+    "express": "^3.21.2",
+    "method-override": "^2.3.6",
+    "moment": "^2.14.1",
+    "mongoose": "^4.5.9",
+    "multiparty": "^3.3.2",
+    "nodemailer": "^2.5.0",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "urlsafe-base64": "^1.0.0"
   }
 }

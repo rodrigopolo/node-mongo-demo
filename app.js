@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Config file
 var CONFIG = require('./config');
 
@@ -14,7 +16,7 @@ var models = require('./lib/models')(mongoose, CONFIG);
 var passport = require('./lib/passport')(models);
 
 // Express web server
-var app = require('./lib/express')(CONFIG, passport);
+var app = require('./lib/express')(CONFIG, passport, mongoose);
 
 // Custom Express app locals
 require('./lib/app_locals')(app);
