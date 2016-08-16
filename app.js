@@ -3,6 +3,11 @@
 // Config file
 var CONFIG = require('./config');
 
+if(CONFIG.google_maps_key==''){
+	console.log('ERROR: You have to fill your Google Maps API Key in the config.js file...\nF*king Google now requires an API Key even for demos.\nGo to the following web address:\n\nhttps://developers.google.com/maps/documentation/javascript/get-api-key\n\nAfter adding the key you can run the app.\n\n');
+	process.exit(1)
+}
+
 // Dev or production
 CONFIG.env = process.env.NODE_ENV || 'development';
 

@@ -2,6 +2,7 @@ config = {
 	site:{
 		name: 'Project'
 	},
+	google_maps_key: '', // https://developers.google.com/maps/documentation/javascript/get-api-key
 	express:{
 		port: 3000, // Can be overwritten in console by typing: PORT=1234 node app.js
 		behind_proxy: false,

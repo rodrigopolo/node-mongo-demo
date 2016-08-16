@@ -8,6 +8,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 	app.get('/places/create', ensureAuthenticated, function(req, res, next){
 		res.render('places/detail', {
 			title: 'Places - Edit',
+			google_maps_key: CONFIG.google_maps_key,
 			site: CONFIG.site,
 			user: req.user,
 			path: req.url,
@@ -21,7 +22,6 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 	// Receive the new place form data
 	app.post('/places/create', ensureAuthenticated, fileUploads, function(req, res, next){
 
-
 		var img = null;
 		if(req.body.files.image){
 			img = req.body.files.image;
@@ -30,7 +30,6 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 				img = null;
 			}
 		}
-
 
 		// Check for errors on POST data
 		var val_errors={};
@@ -46,8 +45,6 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 				has_errors = true;
 			}
 		}
-		
-
 
 		if(req.body.coordinates){
 			req.body.coordinates = JSON.parse(req.body.coordinates);
@@ -69,6 +66,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 			error_msg[0] = 'Please fill in all fields.';
 			res.render('places/detail', {
 				title: 'Places - Create',
+				google_maps_key: CONFIG.google_maps_key,
 				site: CONFIG.site,
 				user: req.user,
 				path: req.url,
@@ -108,6 +106,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 					}
 					res.render('places/detail', {
 						title: 'Places - Create',
+						google_maps_key: CONFIG.google_maps_key,
 						site: CONFIG.site,
 						user: req.user,
 						path: req.url,
@@ -143,6 +142,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 				data.coordinates = data.location.coordinates;
 				res.render('places/detail', {
 					title: 'Places - Edit',
+					google_maps_key: CONFIG.google_maps_key,
 					site: CONFIG.site,
 					user: req.user,
 					path: req.url,
@@ -199,6 +199,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 			error_msg[0] = 'Please fill in all fields.';
 			res.render('places/detail', {
 				title: 'Places - Edit',
+				google_maps_key: CONFIG.google_maps_key,
 				site: CONFIG.site,
 				user: req.user,
 				path: req.url,
@@ -246,6 +247,7 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 							}
 							res.render('places/detail', {
 								title: 'Places - Edit',
+								google_maps_key: CONFIG.google_maps_key,
 								site: CONFIG.site,
 								user: req.user,
 								path: req.url,
@@ -333,22 +335,6 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 	app.get('/places/:page(\\d+)?', ensureAuthenticated, places_list);
 	app.post('/places/:page(\\d+)?', ensureAuthenticated, places_list);
 
-	// Look for the closes place - test 5767
-	// app.get('/xxx', ensureAuthenticated, function(req, res){	
-	// 	models.places.geoNear({
-	// 		type: "Point", 
-	// 		coordinates: [-90.51773048428025, 14.59463146905357]
-	// 	}, {
-	// 		spherical: true, 
-	// 		//maxDistance: 10000 / 6378137, 
-	// 		distanceMultiplier: 1
-	// 	}).then(function(doc){
-	// 		res.json({
-	// 			result: "ok",
-	// 			doc: doc
-	// 		});
-	// 	});
-	// });
 
 	function fileUploads(req, res, next){
 		var form = new multiparty.Form({ 
@@ -357,11 +343,6 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 			//,maxFilesSize: 5242880
 		});
 		form.parse(req, function(err, fields, files){
-			// if(err){
-			// 	res.writeHead(200, {'content-type': 'text/plain'});
-			// 	res.end("invalid request: " + err.message);
-			// 	return;
-			// }
 			var form_files = {};
 			for(k in files){
 				for(m in files[k]){
@@ -388,7 +369,6 @@ module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
 	}
 
 	function moveFile(source, target, callback) {
-		//console.log('De: '+source+"\n A: "+target);
 		fs.rename(source, target, function (err) {
 			if (!err){
 				callback();
