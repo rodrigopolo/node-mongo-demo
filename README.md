@@ -65,6 +65,10 @@ I want to create a new version of this project using the latest node.js librarie
 * F@kng Google Maps API Key added to the `config.js` file because f@king Google.
 * Bootstrap updated.
 
+-------
+
+### Donations
+[PayPal](http://paypal.me/rodrigopolo)
 
 ## License
 
