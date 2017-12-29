@@ -10,7 +10,7 @@
     "connect-flash": "^0.1.1",
     "connect-mongo": "^1.3.2",
     "crypto": "0.0.3",
-    "ejs": "1.0.x",
+    "ejs": "2.5.x",
     "ejs-locals": "1.0.x",
     "express": "^3.21.2",
     "method-override": "^2.3.6",
