@@ -8,7 +8,7 @@ A complete, working and MIT licensed Node.js-MongoDB [CRUD](http://en.wikipedia.
 
 >**Notice:** This demo app was developed on Apr 11, 2014, since then, many updates and upgrades for almost all libraries have been taken place, this demo app still working and running and it still relevant today. Please read the update information at the end of the document.
 
-##Install
+## Install
 
 Install this demo running this commands on your termial:
 
@@ -18,7 +18,7 @@ cd node-mongo-demo
 npm install
 ```
 
-##Setup
+## Setup
 
 
 * Copy the `config_sample.js` to `config.js`.
@@ -29,12 +29,12 @@ npm install
 * Save the file and run.
 
 
-##Run
+## Run
 
 On every OS you can set some environment variable to override the config settings, this is usefull when you want to deploy your project into a production area or change the app ports, there are many different ways to set an environment variable and then run you node app, here some different ways for each OS: 
 
 
-###Linux/Unix/OSX
+### Linux/Unix/OSX
 
 ```
 PORT=8080 && NODE_ENV=production && node app.js
@@ -47,7 +47,7 @@ export PORT=8080
 node app.js
 ```
 
-###Windows:
+### Windows:
 
 ```
 set PORT=8080 && set NODE_ENV=production && node app.js
@@ -59,15 +59,6 @@ or In Windows PowerShell
 $env:PORT = 1234
 node app.js
 ```
-
-## Update 2016-08-16
-I want to create a new version of this project using the latest node.js libraries and frameworks available, but after seeing the amount of work it requires and the time I got for doing it I decided just to update the project so it can work on any platform without any problem, here are some of the updates:
-* The `bcrypt` library is replaced with the `bcryptjs` library, a pure JS solution which doesn't require compilation.
-* Most dependencies updated.
-* Moment.js arguments changed to fit the latest version.
-* The `connect-mongo` for MongoStore modified to use the `mongoose.connection` object directly.
-* F@kng Google Maps API Key added to the `config.js` file because f@king Google.
-* Bootstrap updated.
 
 -------
 
