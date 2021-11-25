@@ -1,4 +1,8 @@
-#Node-Mongo-Demo
+# Node-Mongo-Demo
+
+> **UPDATE 2021:** Bleeding edge technology is a category of technologies incorporating those so new that they could have a high risk of being unreliable and lead adopters to incur greater expense in order to make use of them. This is the case of this demo, at the time it was created, NPM was relatively new, there wasn't any vulnerability check, libraries used to be more consolidated and smaller. Nowadays packages like Express become so big that were broken into pieces, with several people working in different parts, code structure changed drastically thus making this project impossible to maintain. I believe there should be a new demo using the latest Node.js technologies, but boy, that takes time, and time is money. If you want to help to create a new version of this project, [you could help here](https://www.paypal.com/paypalme/rodrigopolo).
+
+## Deprecated info:
 
 A complete, working and MIT licensed Node.js-MongoDB [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) App that uses most common and useful Node.js modules and [Bootstrap](http://getbootstrap.com/) front-end framework, designed to understand how to create and develop a Node.js-MongoDB project with the aim to give a cornerstone for future projects to any developer...
 
