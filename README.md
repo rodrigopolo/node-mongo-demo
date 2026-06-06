@@ -25,8 +25,6 @@ cp .env.example .env        # edit if you want custom credentials
 ### Start (detached)
 
 ```bash
-docker compose up -d --build
-# or
 podman compose up -d --build
 ```
 
@@ -36,32 +34,24 @@ defined in `.env` (`admin@example.com` / `changeme` by default).
 ### View logs
 
 ```bash
-docker compose logs -f
-# or
 podman compose logs -f
 ```
 
 ### Restart
 
 ```bash
-docker compose restart
-# or
 podman compose restart
 ```
 
 ### Stop
 
 ```bash
-docker compose down
-# or
 podman compose down
 ```
 
 To also delete the MongoDB data and image volumes:
 
 ```bash
-docker compose down -v
-# or
 podman compose down -v
 ```
 
