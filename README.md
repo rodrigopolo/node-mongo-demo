@@ -14,7 +14,8 @@ Originally created in 2014 as a server-rendered Express 3 app; fully rewritten i
 
 ## Quick start (Docker / Podman — recommended)
 
-Both `docker compose` and `podman compose` work with the same commands.
+Both `docker compose` and `podman compose` work with the same commands, check
+the [Podman Cheat Sheet](https://github.com/rodrigopolo/cheatsheets/blob/master/podman.md).
 
 ```bash
 git clone https://github.com/rodrigopolo/node-mongo-demo.git
@@ -154,11 +155,11 @@ interactive Leaflet map — no API key required.
 
 ## User roles
 
-| Role | Value | Can do |
-|------|-------|--------|
-| Admin | 1 | Everything |
-| Author | 2 | Manage contributors; create/edit/delete places |
-| Contributor | 3 | Create/edit/delete places |
+| Role        | Value | Can do                                         |
+| ----------- | ----- | ---------------------------------------------- |
+| Admin       | 1     | Everything                                     |
+| Author      | 2     | Manage contributors; create/edit/delete places |
+| Contributor | 3     | Create/edit/delete places                      |
 
 ---
 
