@@ -1,390 +1,208 @@
-var multiparty = require('multiparty');
-var util = require('util');
-var fs = require('fs');
+'use strict';
+const express = require('express');
+const router  = express.Router();
+const multer  = require('multer');
+const path    = require('path');
+const fs      = require('fs');
+const os      = require('os');
+const Place   = require('../lib/models/Place');
+const { ensureAuthenticated } = require('../middleware/auth');
 
-module.exports = function(CONFIG, app, ensureAuthenticated, mongoose, models){
+const IMG_DIR = path.join(__dirname, '..', 'public', 'img', 'places');
 
-	// Show the place creation form
-	app.get('/places/create', ensureAuthenticated, function(req, res, next){
-		res.render('places/detail', {
-			title: 'Places - Edit',
-			google_maps_key: CONFIG.google_maps_key,
-			site: CONFIG.site,
-			user: req.user,
-			path: req.url,
-			form_action: '/places/create/',
-			item: '',
-			validation: '',
-			error_msg: ''
-		});
-	});
+const upload = multer({
+  dest: os.tmpdir(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (['image/jpeg', 'image/png'].includes(file.mimetype)) return cb(null, true);
+    cb(new Error('Only JPEG and PNG images are allowed'));
+  }
+});
 
-	// Receive the new place form data
-	app.post('/places/create', ensureAuthenticated, fileUploads, function(req, res, next){
-
-		var img = null;
-		if(req.body.files.image){
-			img = req.body.files.image;
-			if(img.type!='image/png' && img.type!='image/jpeg'){
-				fs.unlinkSync(img.path);
-				img = null;
-			}
-		}
-
-		// Check for errors on POST data
-		var val_errors={};
-		var has_errors = false;
-		var error_msg = [];
-		var check = [
-			'name',
-			'description'
-		]
-		for(k in check){
-			if(!(req.body[check[k]])){
-				val_errors[check[k]]=true;
-				has_errors = true;
-			}
-		}
-
-		if(req.body.coordinates){
-			req.body.coordinates = JSON.parse(req.body.coordinates);
-		}else{
-			val_errors['location'] = 'Set a point or path.'
-			has_errors = true;
-		}
-
-		if(!img){
-			val_errors['image'] = 'Set a point or path.'
-			has_errors = true;
-		}
-
-		// Show the user form again highlighting the errors
-		if(has_errors){
-			if(img){
-				fs.unlinkSync(img.path);
-			}
-			error_msg[0] = 'Please fill in all fields.';
-			res.render('places/detail', {
-				title: 'Places - Create',
-				google_maps_key: CONFIG.google_maps_key,
-				site: CONFIG.site,
-				user: req.user,
-				path: req.url,
-				form_action: '/places/create/',
-				item: req.body,
-				validation: val_errors,
-				error_msg: error_msg
-			});
-		}else{
-
-			// Save the new user
-			var now = new Date();
-			var place = new models.places({
-				name: req.body.name,
-				imgext: img.ext,
-				description: req.body.description,
-				location: {
-					type: req.body.type,
-					coordinates: req.body.coordinates
-				},
-				author: req.user._id,
-				created: now,
-				last_edit_by: req.user._id,
-				edited: now
-			});
-
-			place.save(function(err,new_place){
-				if(err){
-					if(err.code==11000){
-						// If user email already exist
-						error_msg[0] = 'Duplicate entry.';
-						val_errors.email = true;
-					}else{
-						// In an unkown error
-						error_msg[0] = 'Unknown error, try again later.';
-						console.log(err);
-					}
-					res.render('places/detail', {
-						title: 'Places - Create',
-						google_maps_key: CONFIG.google_maps_key,
-						site: CONFIG.site,
-						user: req.user,
-						path: req.url,
-						form_action: '/places/create/',
-						item: req.body,
-						validation: val_errors,
-						error_msg: error_msg
-					});
-				} else {
-				
-					// Move the file to the public folder and set the name as the ID
-					moveFile(img.path, CONFIG.express.public_dir+'/img/places/'+new_place._id+img.ext,function(err){
-						if(err){
-							console.log(err);
-						}
-						req.flash('success', 'Place has been created.');
-						res.redirect('/places/');
-					});
-
-
-				}
-			});
-		}
-	});
-
-	// Show the edit form with the place data
-	app.get('/places/edit/:id/', ensureAuthenticated, function(req, res, next){
-		models.places.findOne({
-			_id: req.params.id
-		}, function(err, data){
-			if(data){
-				data.type = data.location.type;
-				data.coordinates = data.location.coordinates;
-				res.render('places/detail', {
-					title: 'Places - Edit',
-					google_maps_key: CONFIG.google_maps_key,
-					site: CONFIG.site,
-					user: req.user,
-					path: req.url,
-					form_action: '/places/update/'+req.params.id+'/',
-					item: data,
-					validation: '',
-					error_msg: ''
-				});
-			}else{
-				// 404 - place not found on DB
-				next();
-			}
-		});
-	});
-
-	// Receive the edited place form data
-	app.post('/places/edit/:id/', ensureAuthenticated, fileUploads, function(req, res, next){
-
-
-		var img = null;
-		if(req.body.files.image){
-			img = req.body.files.image;
-			if(img.type!='image/png' && img.type!='image/jpeg'){
-				fs.unlinkSync(img.path);
-				img = null;
-			}
-		}
-
-
-		// Check for errors on POST data
-		var val_errors={};
-		var has_errors = false;
-		var error_msg = [];
-		var check = [
-			'name',
-			'description'
-		]
-		for(k in check){
-			if(!(req.body[check[k]])){
-				val_errors[check[k]]=true;
-				has_errors = true;
-			}
-		}
-
-		if(req.body.coordinates){
-			req.body.coordinates = JSON.parse(req.body.coordinates);
-		}else{
-			val_errors['location'] = 'Set a point or path.'
-			has_errors = true;
-		}
-
-		// Show the place form again highlighting the errors
-		if(has_errors){
-			error_msg[0] = 'Please fill in all fields.';
-			res.render('places/detail', {
-				title: 'Places - Edit',
-				google_maps_key: CONFIG.google_maps_key,
-				site: CONFIG.site,
-				user: req.user,
-				path: req.url,
-				form_action: '/places/update/'+req.params.id+'/',
-				item: req.body,
-				validation: val_errors,
-				error_msg: error_msg
-			});
-		}else{
-			// Find selected place
-			models.places.findOne({
-				_id: req.params.id
-			}, function(err, place){
-				if(place){
-
-					if(img){
-						// Move the file to the public folder and set the name as the ID
-						moveFile(img.path, CONFIG.express.public_dir+'/img/places/'+place._id+img.ext,function(err){
-							if(err){
-								console.log(err);
-							}
-						});
-						place.imgext = img.ext;
-					}
-					
-					// Modify values received from the form
-					place.name = req.body.name;
-					place.description = req.body.description;
-					place.last_edit_by = req.user._id;
-					place.edited = new Date();
-					place.location.type = req.body.type,
-					place.location.coordinates = req.body.coordinates
-
-
-					// Save the place
-					place.save(function(err){
-						if(err){
-							if(err.code==11001){
-								// 
-								error_msg[0] = 'Duplicate entry.';
-							}else{
-								// In an unkown error
-								error_msg[0] = 'Unknown error, try again later.';
-								console.log(err);
-							}
-							res.render('places/detail', {
-								title: 'Places - Edit',
-								google_maps_key: CONFIG.google_maps_key,
-								site: CONFIG.site,
-								user: req.user,
-								path: req.url,
-								form_action: '/places/update/'+req.params.id+'/',
-								item: req.body,
-								validation: val_errors,
-								error_msg: error_msg
-							});
-						} else {
-							req.flash('success', '"'+place.name+'" has been updated.');
-							res.redirect('/places/');
-						}
-					});
-
-				}else{
-					// 404 - place not found on DB
-					next();
-				}
-			});
-		}
-	});
-
-	// Delete places
-	app.post('/places/delete/:id/', ensureAuthenticated, function(req, res){
-
-		// First, check if the place exists
-		models.places.findOne({
-			_id: req.params.id
-		}, function(err, place){
-			// Place exists
-			if(place){
-
-				// place removal
-				place.remove(function(err, deleted_place){
-					if(err){
-						res.redirect('/places/');
-					}else{
-						fs.unlinkSync(CONFIG.express.public_dir+'/img/places/'+deleted_place._id+deleted_place.imgext);
-						req.flash('success', 'User "'+deleted_place.name+'"" has been deleted.');
-						res.redirect('/places/');
-					}
-				});
-
-			}else{
-				// 404 - place not found on DB
-				next();
-			}
-		});
-
-	});
-
-	// Show the index page with pagination
-	var places_list = function(req, res, next){
-		var find = {};
-		if(req.body.search){
-			var look_for = new RegExp(req.body.search, 'i');
-			find['$or'] = [ {'name': look_for}, {'description': look_for}];
-		}
-		var page = (req.params.page || 1)-1;
-		var perPage = 10;
-		models.places
-			.find(find)
-			.populate('author')
-			.select('_id name author edited created')
-			.sort({name: 'asc'})
-			.limit(perPage)
-			.skip(perPage * page)
-			.exec(function(err, data){
-				models.places.find(find).count().exec(function(err, count){
-					res.render('places/index', {
-						title: 'Places',
-						site: CONFIG.site,
-						user: req.user,
-						path: req.url,
-						places: data,
-						search: req.body.search,
-						page: (page+1),
-						pages: Math.ceil(count / perPage),
-						messages: req.flash('success')
-					});
-				});
-		});
-	}
-
-	app.get('/places/:page(\\d+)?', ensureAuthenticated, places_list);
-	app.post('/places/:page(\\d+)?', ensureAuthenticated, places_list);
-
-
-	function fileUploads(req, res, next){
-		var form = new multiparty.Form({ 
-			autoFiles: true,
-			uploadDir: __dirname + '/../tmp'
-			//,maxFilesSize: 5242880
-		});
-		form.parse(req, function(err, fields, files){
-			var form_files = {};
-			for(k in files){
-				for(m in files[k]){
-					if(files[k][m].size<1){
-						fs.unlinkSync(files[k][m].path);
-					}else{
-						form_files[k] = {
-							name: files[k][m].originalFilename,
-							type: files[k][m].headers['content-type'],
-							path: files[k][m].path,
-							size: files[k][m].size,
-							ext: files[k][m].originalFilename.substr(files[k][m].originalFilename.lastIndexOf('.'))
-						};
-					}
-				}
-			}
-			for(k in fields){
-				fields[k] = fields[k][0]
-			}
-						req.body = fields;
-			req.body.files = form_files;
-			next();
-		});
-	}
-
-	function moveFile(source, target, callback) {
-		fs.rename(source, target, function (err) {
-			if (!err){
-				callback();
-			} else {
-				var is = fs.createReadStream(source);
-				var os = fs.createWriteStream(target);
-				is.on('end', function (err) {
-					if (!err) {
-						fs.unlink(source, callback);
-					} else {
-						callback(err);
-					}
-				});
-				is.pipe(os);
-			}
-		});
-	};
-
+async function moveFile(src, dest) {
+  try {
+    await fs.promises.rename(src, dest);
+  } catch {
+    await fs.promises.copyFile(src, dest);
+    await fs.promises.unlink(src);
+  }
 }
+
+// IMPORTANT: /near and /within must be declared before /:id
+// so Express doesn't match them as place IDs.
+
+// GET /api/places/near?lat=X&lng=Y&maxDistance=5000
+router.get('/near', ensureAuthenticated, async (req, res, next) => {
+  try {
+    const { lat, lng, maxDistance = 5000 } = req.query;
+    if (!lat || !lng) return res.status(400).json({ error: 'lat and lng query params are required' });
+
+    const places = await Place.find({
+      location: {
+        $near: {
+          $geometry: { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
+          $maxDistance: parseInt(maxDistance)
+        }
+      }
+    }).populate('author', 'name').select('_id name description imgext location author created');
+
+    res.json({ places });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/places/within  body: { coordinates: [[[lng,lat], ...]] }
+router.post('/within', ensureAuthenticated, async (req, res, next) => {
+  try {
+    const { coordinates } = req.body;
+    if (!coordinates) return res.status(400).json({ error: 'coordinates are required' });
+
+    const places = await Place.find({
+      location: {
+        $geoWithin: {
+          $geometry: { type: 'Polygon', coordinates }
+        }
+      }
+    }).populate('author', 'name').select('_id name description imgext location author created');
+
+    res.json({ places });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/places  — list with pagination + text search
+router.get('/', ensureAuthenticated, async (req, res, next) => {
+  try {
+    const page    = Math.max(1, parseInt(req.query.page) || 1) - 1;
+    const perPage = 10;
+    const search  = req.query.search || '';
+    const find    = {};
+    if (search) {
+      const re = new RegExp(search, 'i');
+      find.$or = [{ name: re }, { description: re }];
+    }
+    const [places, total] = await Promise.all([
+      Place.find(find)
+        .populate('author', 'name')
+        .select('_id name imgext description author edited created')
+        .sort({ name: 1 })
+        .limit(perPage)
+        .skip(perPage * page),
+      Place.countDocuments(find)
+    ]);
+    res.json({ places, page: page + 1, pages: Math.ceil(total / perPage), total });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/places/:id
+router.get('/:id', ensureAuthenticated, async (req, res, next) => {
+  try {
+    const place = await Place.findById(req.params.id)
+      .populate('author', 'name')
+      .populate('last_edit_by', 'name');
+    if (!place) return res.status(404).json({ error: 'Place not found' });
+    res.json(place);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/places  — create with optional image upload
+router.post('/', ensureAuthenticated, upload.single('image'), async (req, res, next) => {
+  const tempFile = req.file?.path;
+  try {
+    const { name, description, type, coordinates } = req.body;
+    if (!name || !description || !coordinates) {
+      if (tempFile) await fs.promises.unlink(tempFile).catch(() => {});
+      return res.status(400).json({ error: 'name, description, and coordinates are required' });
+    }
+
+    let parsedCoords;
+    try { parsedCoords = JSON.parse(coordinates); } catch {
+      if (tempFile) await fs.promises.unlink(tempFile).catch(() => {});
+      return res.status(400).json({ error: 'coordinates must be valid JSON' });
+    }
+
+    const ext = req.file ? path.extname(req.file.originalname).toLowerCase() : null;
+    const now = new Date();
+    const place = await Place.create({
+      name, description,
+      imgext: ext,
+      location: { type: type || 'Point', coordinates: parsedCoords },
+      author: req.user._id,
+      last_edit_by: req.user._id,
+      created: now, edited: now
+    });
+
+    if (req.file && ext) {
+      await moveFile(tempFile, path.join(IMG_DIR, `${place._id}${ext}`));
+    }
+
+    res.status(201).json(place);
+  } catch (err) {
+    if (tempFile) await fs.promises.unlink(tempFile).catch(() => {});
+    next(err);
+  }
+});
+
+// PUT /api/places/:id  — update with optional image re-upload
+router.put('/:id', ensureAuthenticated, upload.single('image'), async (req, res, next) => {
+  const tempFile = req.file?.path;
+  try {
+    const place = await Place.findById(req.params.id);
+    if (!place) {
+      if (tempFile) await fs.promises.unlink(tempFile).catch(() => {});
+      return res.status(404).json({ error: 'Place not found' });
+    }
+
+    const { name, description, type, coordinates } = req.body;
+    if (name)        place.name = name;
+    if (description) place.description = description;
+    if (type)        place.location.type = type;
+    if (coordinates) {
+      try { place.location.coordinates = JSON.parse(coordinates); } catch {
+        if (tempFile) await fs.promises.unlink(tempFile).catch(() => {});
+        return res.status(400).json({ error: 'coordinates must be valid JSON' });
+      }
+    }
+
+    if (req.file) {
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      if (place.imgext) {
+        await fs.promises.unlink(path.join(IMG_DIR, `${place._id}${place.imgext}`)).catch(() => {});
+      }
+      await moveFile(tempFile, path.join(IMG_DIR, `${place._id}${ext}`));
+      place.imgext = ext;
+    }
+
+    place.last_edit_by = req.user._id;
+    place.edited = new Date();
+    await place.save();
+    res.json(place);
+  } catch (err) {
+    if (tempFile) await fs.promises.unlink(tempFile).catch(() => {});
+    next(err);
+  }
+});
+
+// DELETE /api/places/:id
+router.delete('/:id', ensureAuthenticated, async (req, res, next) => {
+  try {
+    const place = await Place.findById(req.params.id);
+    if (!place) return res.status(404).json({ error: 'Place not found' });
+
+    if (place.imgext) {
+      await fs.promises.unlink(path.join(IMG_DIR, `${place._id}${place.imgext}`)).catch(() => {});
+    }
+    await place.deleteOne();
+    res.json({ message: `Place "${place.name}" deleted` });
+  } catch (err) {
+    next(err);
+  }
+});
+
+module.exports = router;

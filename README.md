@@ -1,90 +1,207 @@
-# Node-Mongo-Demo
+# Node-Mongo Demo
 
-> **UPDATE 2021:** Bleeding edge technology is a category of technologies incorporating those so new that they could have a high risk of being unreliable and lead adopters to incur greater expense in order to make use of them. This is the case of this demo, at the time it was created, NPM was relatively new, there wasn't any vulnerability check, libraries used to be more consolidated and smaller. Nowadays packages like Express become so big that were broken into pieces, with several people working in different parts, code structure changed drastically thus making this project impossible to maintain. I believe there should be a new demo using the latest Node.js technologies, but boy, that takes time, and time is money. If you want to help to create a new version of this project, [you could help here](https://www.paypal.com/paypalme/rodrigopolo).
+A fully modernized Node.js + MongoDB demo application showcasing:
 
-## Deprecated info:
+- **REST API** with Express 5, session auth via Passport.js
+- **MongoDB geospatial queries** — `$near` and `$geoWithin` via a 2dsphere index
+- **Leaflet.js** maps with drawing tools (no API key required)
+- **Docker Compose** for one-command startup
+- **Zero-build frontend** — Bootstrap 5 + vanilla ES modules
 
-A complete, working and MIT licensed Node.js-MongoDB [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) App that uses most common and useful Node.js modules and [Bootstrap](http://getbootstrap.com/) front-end framework, designed to understand how to create and develop a Node.js-MongoDB project with the aim to give a cornerstone for future projects to any developer...
+Originally created in 2014 as a server-rendered Express 3 app; fully rewritten in 2026.
 
->**Notice:** This demo app was developed on Apr 11, 2014, since then, many updates and upgrades for almost all libraries have been taken place, this demo app still working and running and it still relevant today. Please read the update information at the end of the document.
+---
 
-## Install
+## Quick start (Docker / Podman — recommended)
 
-Install this demo running this commands on your termial:
+Both `docker compose` and `podman compose` work with the same commands.
 
+```bash
+git clone https://github.com/rodrigopolo/node-mongo-demo.git
+cd node-mongo-demo
+cp .env.example .env        # edit if you want custom credentials
 ```
+
+### Start (detached)
+
+```bash
+docker compose up -d --build
+# or
+podman compose up -d --build
+```
+
+Open `http://localhost:3000` and sign in with the default admin account
+defined in `.env` (`admin@example.com` / `changeme` by default).
+
+### View logs
+
+```bash
+docker compose logs -f
+# or
+podman compose logs -f
+```
+
+### Restart
+
+```bash
+docker compose restart
+# or
+podman compose restart
+```
+
+### Stop
+
+```bash
+docker compose down
+# or
+podman compose down
+```
+
+To also delete the MongoDB data and image volumes:
+
+```bash
+docker compose down -v
+# or
+podman compose down -v
+```
+
+---
+
+## Quick start (local)
+
+Requirements: **Node.js 20+** and a running **MongoDB 6+** instance.
+
+```bash
 git clone https://github.com/rodrigopolo/node-mongo-demo.git
 cd node-mongo-demo
 npm install
+cp .env.example .env        # set MONGODB_URI if MongoDB is not on localhost
+npm run dev                 # starts with nodemon for hot-reload
 ```
 
-## Setup
+---
 
+## Configuration
 
-* Copy the `config_sample.js` to `config.js`.
-* Edit `config.js` and set your own configurations:
-  * Create a [Google Maps API Key](https://developers.google.com/maps/documentation/javascript/get-api-key) and add your key on the `config.js` file.
-  * Set your default user account.
-  * Set your prefered `Nodemailer` [transport](http://www.nodemailer.com/docs/transports) for "Password Recovery Email Notifications".
-* Save the file and run.
+All settings live in `.env` (created from `.env.example`):
 
+| Variable                  | Default                          | Description                            |
+| ------------------------- | -------------------------------- | -------------------------------------- |
+| `PORT`                    | `3000`                           | HTTP port                              |
+| `MONGODB_URI`             | `mongodb://localhost:27017/demo` | MongoDB connection string              |
+| `SESSION_SECRET`          | —                                | Long random string for session signing |
+| `DEFAULT_ADMIN_EMAIL`     | `admin@example.com`              | First-run admin account                |
+| `DEFAULT_ADMIN_PASSWORD`  | `changeme`                       | First-run admin password               |
+| `SMTP_HOST`               | —                                | SMTP server for password-reset emails  |
+| `SMTP_PORT`               | `587`                            | SMTP port                              |
+| `SMTP_USER` / `SMTP_PASS` | —                                | SMTP credentials                       |
 
-## Run
+When `SMTP_HOST` is not set, password reset URLs are printed to the console instead of being emailed — useful for local development.
 
-On every OS you can set some environment variable to override the config settings, this is usefull when you want to deploy your project into a production area or change the app ports, there are many different ways to set an environment variable and then run you node app, here some different ways for each OS: 
+---
 
+## API reference
 
-### Linux/Unix/OSX
+### Auth — `/api/auth`
+
+| Method | Path                     | Auth | Description                                        |
+| ------ | ------------------------ | ---- | -------------------------------------------------- |
+| `GET`  | `/api/auth/me`           | ✓    | Returns current user                               |
+| `POST` | `/api/auth/signin`       | —    | `{ email, password }` → user JSON + session cookie |
+| `POST` | `/api/auth/signout`      | ✓    | Clears session                                     |
+| `POST` | `/api/auth/reset`        | —    | `{ email }` → sends reset link                     |
+| `GET`  | `/api/auth/reset/:token` | —    | Validates reset token                              |
+| `POST` | `/api/auth/reset/:token` | —    | `{ password }` → updates password                  |
+
+### Users — `/api/users`
+
+| Method   | Path             | Min role     | Description                       |
+| -------- | ---------------- | ------------ | --------------------------------- |
+| `GET`    | `/api/users`     | Author       | List with `?search=` and `?page=` |
+| `GET`    | `/api/users/:id` | Contributor  | Get one                           |
+| `POST`   | `/api/users`     | Author       | Create                            |
+| `PUT`    | `/api/users/:id` | Contributor* | Update                            |
+| `DELETE` | `/api/users/:id` | Author       | Delete                            |
+
+_*Users can edit their own account; Admins can edit anyone._
+
+### Places — `/api/places`
+
+| Method   | Path                 | Auth | Description                                                                                                      |
+| -------- | -------------------- | ---- | ---------------------------------------------------------------------------------------------------------------- |
+| `GET`    | `/api/places`        | ✓    | List with `?search=` and `?page=`                                                                                |
+| `GET`    | `/api/places/:id`    | ✓    | Get one                                                                                                          |
+| `POST`   | `/api/places`        | ✓    | Create — `multipart/form-data` with `name`, `description`, `type`, `coordinates` (JSON string), optional `image` |
+| `PUT`    | `/api/places/:id`    | ✓    | Update — same fields as create, all optional                                                                     |
+| `DELETE` | `/api/places/:id`    | ✓    | Delete                                                                                                           |
+| `GET`    | `/api/places/near`   | ✓    | `?lat=&lng=&maxDistance=` (meters) — `$near` query                                                               |
+| `POST`   | `/api/places/within` | ✓    | `{ coordinates: [[[lng,lat],...]] }` — `$geoWithin` polygon query                                                |
+
+---
+
+## Geospatial demo
+
+Places store a GeoJSON `location` field (Point or Polygon) backed by a
+MongoDB **2dsphere** index. The `near` and `within` endpoints expose this
+directly:
+
+```bash
+# Find places within 10 km of Guatemala City
+curl -s "http://localhost:3000/api/places/near?lat=14.6349&lng=-90.5069&maxDistance=10000" \
+  -H "Cookie: connect.sid=<your-session>"
+
+# Find places inside a bounding polygon
+curl -s -X POST "http://localhost:3000/api/places/within" \
+  -H "Content-Type: application/json" \
+  -H "Cookie: connect.sid=<your-session>" \
+  -d '{"coordinates":[[[-91,15],[-90,15],[-90,14],[-91,14],[-91,15]]]}'
+```
+
+The **Places → Geo Search** page in the UI demonstrates both queries with an
+interactive Leaflet map — no API key required.
+
+---
+
+## User roles
+
+| Role | Value | Can do |
+|------|-------|--------|
+| Admin | 1 | Everything |
+| Author | 2 | Manage contributors; create/edit/delete places |
+| Contributor | 3 | Create/edit/delete places |
+
+---
+
+## Project structure
 
 ```
-PORT=8080 && NODE_ENV=production && node app.js
+├── app.js               — Express 5 entry point
+├── lib/
+│   ├── db.js            — Mongoose 8 connection
+│   ├── auth.js          — Passport.js local strategy
+│   └── models/
+│       ├── User.js      — User schema + bcrypt hooks
+│       └── Place.js     — Place schema + 2dsphere index
+├── middleware/
+│   └── auth.js          — ensureAuthenticated / requireRole
+├── routes/
+│   ├── auth.js          — Auth endpoints
+│   ├── users.js         — User CRUD
+│   └── places.js        — Place CRUD + geo queries
+└── public/              — Static frontend (no build step)
+    ├── index.html
+    ├── signin.html
+    ├── reset.html
+    ├── users.html
+    ├── places.html
+    └── js/
+        ├── api.js       — fetch wrapper + nav helpers
+        ├── users.js     — Users page (ES module)
+        └── places.js    — Places page with Leaflet (ES module)
 ```
 
-or
-
-```
-export PORT=8080
-node app.js
-```
-
-### Windows:
-
-```
-set PORT=8080 && set NODE_ENV=production && node app.js
-```
-
-or In Windows PowerShell
-
-```
-$env:PORT = 1234
-node app.js
-```
-
--------
-
-### Donations
-[PayPal](http://paypal.me/rodrigopolo)
+---
 
 ## License
 
-(The MIT License)
-
-Copyright (c) by Rodrigo Polo http://RodrigoPolo.com
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+MIT — Copyright © Rodrigo Polo <http://RodrigoPolo.com>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Password Reset — Node-Mongo Demo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">Node-Mongo Demo</a>
+  </div>
+</nav>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-sm-10 col-md-6 col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <div id="alert-area"></div>
+
+          <!-- Step 1: request reset email -->
+          <div id="request-form-wrap">
+            <h4 class="card-title mb-1 text-center">Reset Password</h4>
+            <p class="text-muted text-center small mb-4">
+              Enter your email and we'll send you a reset link.
+            </p>
+            <form id="request-form">
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input name="email" type="email" class="form-control" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Send Reset Link</button>
+            </form>
+            <hr>
+            <p class="text-center mb-0 small"><a href="/signin.html">Back to Sign In</a></p>
+          </div>
+
+          <!-- Step 2: enter new password (shown when ?token= present) -->
+          <div id="newpass-form-wrap" class="d-none">
+            <h4 class="card-title mb-1 text-center">New Password</h4>
+            <p class="text-muted text-center small mb-4" id="reset-email-hint"></p>
+            <form id="newpass-form">
+              <div class="mb-3">
+                <label class="form-label">New Password</label>
+                <input name="password" type="password" class="form-control" minlength="6" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Set New Password</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+  import { api } from '/js/api.js';
+
+  function showAlert(type, msg) {
+    document.getElementById('alert-area').innerHTML = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${msg}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>`;
+  }
+
+  const token = new URLSearchParams(location.search).get('token');
+
+  if (token) {
+    // Validate the token first
+    try {
+      const { email } = await api.auth.validateReset(token);
+      document.getElementById('request-form-wrap').classList.add('d-none');
+      document.getElementById('newpass-form-wrap').classList.remove('d-none');
+      document.getElementById('reset-email-hint').textContent = `Setting new password for ${email}`;
+    } catch {
+      showAlert('danger', 'This reset link is invalid or has expired. <a href="/reset.html">Request a new one</a>.');
+    }
+
+    document.getElementById('newpass-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const { password } = Object.fromEntries(new FormData(e.target));
+      try {
+        await api.auth.submitReset(token, password);
+        showAlert('success', 'Password updated! <a href="/signin.html">Sign in now</a>.');
+        document.getElementById('newpass-form-wrap').classList.add('d-none');
+      } catch (err) {
+        showAlert('danger', err.message);
+      }
+    });
+  } else {
+    document.getElementById('request-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const { email } = Object.fromEntries(new FormData(e.target));
+      try {
+        const { message } = await api.auth.requestReset(email);
+        showAlert('success', message);
+        e.target.reset();
+      } catch (err) {
+        showAlert('danger', err.message);
+      }
+    });
+  }
+</script>
+</body>
+</html>

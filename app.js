@@ -1,71 +1,77 @@
-#!/usr/bin/env node
+'use strict';
+require('dotenv').config();
 
-// Config file
-var CONFIG = require('./config');
+const express  = require('express');
+const session  = require('express-session');
+const MongoStore = require('connect-mongo');
+const helmet   = require('helmet');
+const path     = require('path');
+const fs       = require('fs');
 
-if(CONFIG.google_maps_key==''){
-	console.log('ERROR: You have to fill your Google Maps API Key in the config.js file...\nF*king Google now requires an API Key even for demos.\nGo to the following web address:\n\nhttps://developers.google.com/maps/documentation/javascript/get-api-key\n\nAfter adding the key you can run the app.\n\n');
-	process.exit(1)
-}
+// Connect to MongoDB
+require('./lib/db');
 
-// Dev or production
-CONFIG.env = process.env.NODE_ENV || 'development';
+// Register Mongoose models (also creates default admin on first run)
+require('./lib/models/User');
+require('./lib/models/Place');
 
-// Mongoose instance
-var mongoose = require('./lib/mongoose')(CONFIG);
+// Configure Passport strategies
+const passport = require('./lib/auth');
 
-// Mongoose models
-var models = require('./lib/models')(mongoose, CONFIG);
+const app = express();
 
-// Authentication
-var passport = require('./lib/passport')(models);
+// Ensure the places image directory exists
+const IMG_DIR = path.join(__dirname, 'public', 'img', 'places');
+if (!fs.existsSync(IMG_DIR)) fs.mkdirSync(IMG_DIR, { recursive: true });
 
-// Express web server
-var app = require('./lib/express')(CONFIG, passport, mongoose);
+// Security headers — CSP is relaxed to allow CDN assets used by the frontend
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:  ["'self'"],
+      scriptSrc:   ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "unpkg.com", "cdnjs.cloudflare.com"],
+      styleSrc:    ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "unpkg.com", "cdnjs.cloudflare.com"],
+      imgSrc:      ["'self'", "data:", "https://*.tile.openstreetmap.org", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
+      connectSrc:  ["'self'", "cdn.jsdelivr.net", "unpkg.com", "cdnjs.cloudflare.com"],
+      fontSrc:     ["'self'", "data:", "cdn.jsdelivr.net"]
+    }
+  }
+}));
 
-// Custom Express app locals
-require('./lib/app_locals')(app);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Simple route middleware to ensure user is authenticated.
-function ensureAuthenticated(req, res, next){
-	if (req.isAuthenticated()){
-		return next();
-	}
-	res.redirect('/signin')
-}
+app.use(session({
+  secret:            process.env.SESSION_SECRET || 'dev-secret-change-me',
+  store:             MongoStore.create({ mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/demo' }),
+  resave:            false,
+  saveUninitialized: false,
+  cookie:            { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+}));
 
-/**
- * Express routes
- **/
+app.use(passport.initialize());
+app.use(passport.session());
 
-// Public routes
-require('./routes/public')(CONFIG, app);
+// Serve the static frontend
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Passport routes
-require('./routes/passport')(CONFIG, app, models, passport);
+// REST API routes
+app.use('/api/auth',   require('./routes/auth'));
+app.use('/api/users',  require('./routes/users'));
+app.use('/api/places', require('./routes/places'));
 
-// User routes
-require('./routes/users')(CONFIG, app, ensureAuthenticated, models);
+// For any unknown API path, return JSON 404
+app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 
-// Places
-require('./routes/places')(CONFIG, app, ensureAuthenticated, mongoose, models);
+// For all other paths, serve the SPA index so client-side routing works
+app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-
-// Redirect all trailing slashes gloablly in express 
-app.use(function(req, res, next) {
-	if (req.path.substr(-1) != '/' && req.path.length > 1) {
-		var query = req.url.slice(req.path.length);
-		res.redirect(301, req.path + '/' + query);
-	} else {
-		next();
-	}
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack || err.message);
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({ error: err.message || 'Internal server error' });
 });
 
-// Server port
-app.set('port', process.env.PORT || CONFIG.express.port);
-
-// Start server
-var server = app.listen(app.get('port'), function() {
-  console.log('Express server listening on port: "' + server.address().port+'".');
-});
-
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server listening on http://localhost:${PORT}`));
